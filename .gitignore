@@ -7,3 +7,13 @@
 
 # .tfvars files
 *.tfvars
+
+# Project specific gitignore items from ICON project
+.idea/
+_old/
+.pytest_cache
+*.tfstate/
+*.tfstate.backup
+*.tfplan
+.terragrunt-cache/
+.terraform/
