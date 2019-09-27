@@ -27,6 +27,6 @@ resource "null_resource" "this" {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='${local.playbook_roles}' ansible-playbook '${local.playbook_file}' --inventory='${local.eip},' --become --become-method='sudo' --become-user='root' --forks=5 --user='${local.user}' --private-key='${local.private_key}' --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no'"
+    command = "ANSIBLE_SCP_IF_SSH=true ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='${local.playbook_roles}' ansible-playbook '${local.playbook_file}' --inventory='${local.eip},' --become --become-method='sudo' --become-user='root' --forks=5 --user='${local.user}' --private-key='${local.private_key}' --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no'"
   }
 }
