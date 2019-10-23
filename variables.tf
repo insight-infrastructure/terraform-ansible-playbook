@@ -35,3 +35,24 @@ variable "tags" {
   description = "Tags that are appended"
   type = map(string)
 }
+
+variable "cidr_block_matches" {
+  type = list(string)
+  default = ["10.*.*.*", "17.??.*.*"]
+}
+
+variable "bastion_user" {
+  type = string
+  default = ""
+}
+
+variable "bastion_dns" {
+  type = string
+  default = ""
+}
+
+variable "playbook_vars" {
+  type = map(string)
+  default = {}
+  description = "Extra vars to include in run"
+}
