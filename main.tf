@@ -15,7 +15,6 @@ locals {
   common_tags = {
     "Name" = local.name
     "Terraform" = true
-    "Environment" = var.environment
   }
 
   tags = merge(var.tags, local.common_tags)
@@ -64,8 +63,10 @@ resource "null_resource" "write_cfg" {
 
   provisioner "local-exec" {
     command = <<-EOT
+%{ if var.bastion_dns != "" }
 echo '${data.template_file.ssh_cfg.rendered}' >> ${path.module}/ssh.cfg
 echo '${data.template_file.ansible_cfg.rendered}' >> ${path.module}/ansible.cfg
+%{ endif }
 echo '${data.template_file.ansible_sh.rendered}' >> ${path.module}/ansible.sh
 EOT
   }
@@ -85,8 +86,9 @@ ansible-playbook '${local.playbook_file}' \
 --become \
 --forks=5 \
 --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no' \
---private-key='${local.private_key}' \
---extra-vars=${jsonencode(var.playbook_vars)}
+--private-key='${local.private_key}' %{ if var.playbook_vars != {} }\
+--extra-vars='${jsonencode(var.playbook_vars)}'
+%{ endif }
   %{ else }
 ansible-playbook '${local.playbook_file}' \
 --inventory='${local.eip},' \
@@ -96,8 +98,9 @@ ansible-playbook '${local.playbook_file}' \
 --forks=5 \
 --user='${local.user}' \
 --private-key='${local.private_key}' \
---ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no'" \
---extra-vars=${jsonencode(var.playbook_vars)}
+--ssh-extra-args="'-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no'"  %{ if var.playbook_vars != {} }\
+--extra-vars='${jsonencode(var.playbook_vars)}'
+%{ endif }
 %{ endif }
 EOT
 }
