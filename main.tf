@@ -98,7 +98,7 @@ ansible-playbook '${local.playbook_file}' \
 --forks=5 \
 --user='${local.user}' \
 --private-key='${local.private_key}' \
---ssh-extra-args="'-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no'"  %{ if var.playbook_vars != {} }\
+--ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no'  %{ if var.playbook_vars != {} }\
 --extra-vars='${jsonencode(var.playbook_vars)}'
 %{ endif }
 %{ endif }
