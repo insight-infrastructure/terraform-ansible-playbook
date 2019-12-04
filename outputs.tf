@@ -2,6 +2,6 @@ output "status" {
   value = "Node Configured!"
 }
 
-output "eip" {
-  value = var.eip
+output "ip" {
+  value = var.ip
 }

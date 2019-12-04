@@ -3,42 +3,33 @@ variable "name" {
   default = "node-configuration"
 }
 
-variable "environment" {
-  description = "The environment that generally corresponds to the account you are deploying into."
-}
-
-variable "config_user" {
+variable "user" {
   type = string
   description = "The user used to configure the node"
 }
 
-variable "config_private_key" {
+variable "private_key_path" {
   type = string
   description = "SSH Private Key of to configure the node"
 }
 
-variable "config_playbook_file" {
+variable "playbook_file_path" {
   type = string
   description = "Absolute path to playbook file to configure the node"
 }
 
-variable "config_playbook_roles_dir" {
+variable "roles_dir" {
   type = string
   description = "Absolute path to roles directory to configure the node"
 }
 
-variable "eip" {
+variable "ip" {
   description = "The elastic ip address of the node being configured."
-}
-
-variable "tags" {
-  description = "Tags that are appended"
-  type = map(string)
 }
 
 variable "cidr_block_matches" {
   type = list(string)
-  default = ["10.*.*.*", "17.??.*.*"]
+  default = ["10.*.*.*", "17.??.*.*", "192.168.*.*"]
 }
 
 variable "bastion_user" {
@@ -46,7 +37,7 @@ variable "bastion_user" {
   default = ""
 }
 
-variable "bastion_dns" {
+variable "bastion_ip" {
   type = string
   default = ""
 }

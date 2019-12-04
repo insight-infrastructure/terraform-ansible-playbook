@@ -5,34 +5,20 @@ terraform {
   required_version = ">= 0.12"
 }
 
-locals {
-  name = var.name
-  eip = var.eip
-  user = var.config_user
-  private_key = var.config_private_key
-  playbook_file = var.config_playbook_file
-  playbook_roles = var.config_playbook_roles_dir
-  common_tags = {
-    "Name" = local.name
-    "Terraform" = true
-  }
-
-  tags = merge(var.tags, local.common_tags)
-}
 
 data "template_file" "ssh_cfg" {
 
   template = <<-EOF
 %{ for cidr in var.cidr_block_matches }
 Host ${cidr}
-  ProxyCommand    ssh -A -W %h:%p ubuntu@${var.bastion_dns}
-  IdentityFile    ${var.config_private_key}
+  ProxyCommand    ssh -A -W %h:%p ubuntu@${var.bastion_ip}
+  IdentityFile    ${var.private_key_path}
 %{ endfor }
 
-Host ${var.bastion_dns}
-  Hostname ${var.bastion_dns}
+Host ${var.bastion_ip}
+  Hostname ${var.bastion_ip}
   User ${var.bastion_user}
-  IdentityFile ${var.config_private_key}
+  IdentityFile ${var.private_key_path}
   ControlMaster auto
   ControlPath ~/.ssh/ansible-%r@%h:%p
   ControlPersist 5m
@@ -63,7 +49,7 @@ resource "null_resource" "write_cfg" {
 
   provisioner "local-exec" {
     command = <<-EOT
-%{ if var.bastion_dns != "" }
+%{ if var.bastion_ip != "" }
 echo '${data.template_file.ssh_cfg.rendered}' >> ${path.module}/ssh.cfg
 echo '${data.template_file.ansible_cfg.rendered}' >> ${path.module}/ansible.cfg
 %{ endif }
@@ -76,28 +62,28 @@ data "template_file" "ansible_sh" {
   template = <<-EOT
 ANSIBLE_SCP_IF_SSH=true
 ANSIBLE_FORCE_COLOR=true
-ANSIBLE_ROLES_PATH='${local.playbook_roles}'
-%{ if var.bastion_dns != "" }
+ANSIBLE_ROLES_PATH='${var.roles_dir}'
+%{ if var.bastion_ip != "" }
 ANSIBLE_CONFIG=${path.module}/ansible.cfg
-ansible-playbook '${local.playbook_file}' \
---inventory='${local.eip},' \
---user=${local.user} \
+ansible-playbook '${var.playbook_file_path}' \
+--inventory='${var.ip},' \
+--user=${var.user} \
 --become-method=sudo \
 --become \
 --forks=5 \
 --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no' \
---private-key='${local.private_key}' %{ if var.playbook_vars != {} }\
+--private-key='${var.private_key_path}' %{ if var.playbook_vars != {} }\
 --extra-vars='${jsonencode(var.playbook_vars)}'
 %{ endif }
   %{ else }
-ansible-playbook '${local.playbook_file}' \
---inventory='${local.eip},' \
+ansible-playbook '${var.playbook_file_path}' \
+--inventory='${var.ip},' \
 --become \
 --become-method='sudo' \
 --become-user='root' \
 --forks=5 \
---user='${local.user}' \
---private-key='${local.private_key}' \
+--user='${var.user}' \
+--private-key='${var.private_key_path}' \
 --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no'  %{ if var.playbook_vars != {} }\
 --extra-vars='${jsonencode(var.playbook_vars)}'
 %{ endif }
@@ -116,27 +102,3 @@ resource "null_resource" "this" {
 
   depends_on = [null_resource.write_cfg]
 }
-
-
-//resource "null_resource" "this" {
-//  triggers = {
-//    apply_time = timestamp()
-//  }
-//
-//  provisioner "local-exec" {
-//    command = "ANSIBLE_SCP_IF_SSH=true ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='${local.playbook_roles}' ansible-playbook '${local.playbook_file}' --inventory='${local.eip},' --become --become-method='sudo' --become-user='root' --forks=5 --user='${local.user}' --private-key='${local.private_key}' --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no'"
-//  }
-//
-//  provisioner "local-exec" {
-//    command = <<-EOF
-//  ANSIBLE_SCP_IF_SSH=true \
-//  ANSIBLE_FORCE_COLOR=true \
-//  ANSIBLE_ROLES_PATH='${local.playbook_roles}' \
-//  ansible-playbook '${local.playbook_file}' \
-//  --inventory='${local.eip},' \
-//  --become --become-method='sudo' --become-user='root' --forks=5 --user='${local.user}' --private-key='${local.private_key}' --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no'
-//
-//  EOF
-//  }
-//
-//}
