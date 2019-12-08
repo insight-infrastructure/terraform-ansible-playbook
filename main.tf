@@ -27,7 +27,6 @@ Host ${var.bastion_ip}
 EOF
 }
 
-
 data "template_file" "ansible_cfg" {
   template = <<-EOF
 [ssh_connection]
@@ -50,10 +49,10 @@ resource "null_resource" "write_cfg" {
   provisioner "local-exec" {
     command = <<-EOT
 %{ if var.bastion_ip != "" }
-echo '${data.template_file.ssh_cfg.rendered}' >> ${path.module}/ssh.cfg
-echo '${data.template_file.ansible_cfg.rendered}' >> ${path.module}/ansible.cfg
+echo '${data.template_file.ssh_cfg.rendered}' > ${path.module}/ssh.cfg
+echo '${data.template_file.ansible_cfg.rendered}' > ${path.module}/ansible.cfg
 %{ endif }
-echo '${data.template_file.ansible_sh.rendered}' >> ${path.module}/ansible.sh
+echo '${data.template_file.ansible_sh.rendered}' > ${path.module}/ansible.sh
 EOT
   }
 }

@@ -19,3 +19,7 @@ _old/
 .terraform/
 
 tmp/
+
+ansible.sh
+ansible.cfg
+ssh.cfg
