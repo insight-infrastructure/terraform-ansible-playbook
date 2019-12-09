@@ -42,6 +42,7 @@ EOF
 }
 
 resource "null_resource" "write_cfg" {
+  count = var.playbook_file_path == "" ? 0 : 1
   triggers = {
     appply_time = timestamp()
   }
@@ -90,7 +91,8 @@ ansible-playbook '${var.playbook_file_path}' \
 EOT
 }
 
-resource "null_resource" "this" {
+resource "null_resource" "execute" {
+  count = var.playbook_file_path == "" ? 0 : 1
   triggers = {
     apply_time = timestamp()
   }
@@ -101,3 +103,23 @@ resource "null_resource" "this" {
 
   depends_on = [null_resource.write_cfg]
 }
+
+resource "null_resource" "cleanup" {
+  count = var.playbook_file_path == "" ? 0 : 1
+  triggers = {
+    apply_time = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command =  <<-EOT
+%{ if var.bastion_ip != "" }
+rm ${path.module}/ssh.cfg
+rm ${path.module}/ansible.cfg
+%{ endif }
+rm ${path.module}/ansible.sh
+EOT
+  }
+
+  depends_on = [null_resource.execute]
+}
+
