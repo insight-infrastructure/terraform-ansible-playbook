@@ -90,7 +90,7 @@ ansible-playbook '${var.playbook_file_path}' \
 EOT
 }
 
-resource "null_resource" "this" {
+resource "null_resource" "ansible_run" {
   triggers = {
     apply_time = timestamp()
   }

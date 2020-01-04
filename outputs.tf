@@ -1,5 +1,5 @@
 output "status" {
-  value = "Node Configured!"
+  value = "Node Configured! - ${null_resource.ansible_run.id}"
 }
 
 output "ip" {
