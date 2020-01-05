@@ -5,7 +5,6 @@ terraform {
   required_version = ">= 0.12"
 }
 
-
 data "template_file" "ssh_cfg" {
 
   template = <<-EOF
@@ -43,7 +42,10 @@ EOF
 
 resource "null_resource" "write_cfg" {
   triggers = {
-    appply_time = timestamp()
+    ip = var.ip
+    sh_template = data.template_file.ansible_sh.rendered
+    cfg_template = data.template_file.ansible_cfg.rendered
+    ssh_template = data.template_file.ssh_cfg.rendered
   }
 
   provisioner "local-exec" {
