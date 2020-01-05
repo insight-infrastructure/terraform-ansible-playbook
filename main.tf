@@ -5,7 +5,7 @@ terraform {
   required_version = ">= 0.12"
 }
 
-data "template_file" "ssh_cfg" {
+resource "template_file" "ssh_cfg" {
 
   template = <<-EOF
 %{ for cidr in var.cidr_block_matches }
@@ -43,23 +43,24 @@ EOF
 resource "null_resource" "write_cfg" {
   triggers = {
     ip = var.ip
-    sh_template = data.template_file.ansible_sh.rendered
+    sh_template = template_file.ansible_sh.rendered
     cfg_template = data.template_file.ansible_cfg.rendered
-    ssh_template = data.template_file.ssh_cfg.rendered
+    ssh_template = template_file.ssh_cfg.rendered
   }
 
   provisioner "local-exec" {
     command = <<-EOT
 %{ if var.bastion_ip != "" }
-echo '${data.template_file.ssh_cfg.rendered}' > ${path.module}/ssh.cfg
+echo '${template_file.ssh_cfg.rendered}' > ${path.module}/ssh.cfg
 echo '${data.template_file.ansible_cfg.rendered}' > ${path.module}/ansible.cfg
 %{ endif }
-echo '${data.template_file.ansible_sh.rendered}' > ${path.module}/ansible.sh
+echo '${template_file.ansible_sh.rendered}' > ${path.module}/ansible.sh
 EOT
   }
+//  Don't need to write ansible.sh but nice for debugging
 }
 
-data "template_file" "ansible_sh" {
+resource "template_file" "ansible_sh" {
   template = <<-EOT
 ANSIBLE_SCP_IF_SSH=true
 ANSIBLE_FORCE_COLOR=true
@@ -98,7 +99,7 @@ resource "null_resource" "ansible_run" {
   }
 
   provisioner "local-exec" {
-    command = data.template_file.ansible_sh.rendered
+    command = template_file.ansible_sh.rendered
   }
 
   depends_on = [null_resource.write_cfg]
