@@ -1,0 +1,6 @@
+- name: "Copy over a file"
+  copy:
+    src: testing.txt
+    dest: /home/ubuntu/testing.txt
+    mode: '0400'
+    owner: "ubuntu"

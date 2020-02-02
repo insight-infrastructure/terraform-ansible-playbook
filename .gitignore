@@ -6,7 +6,7 @@
 *.tfstate.*
 
 # .tfvars files
-*.tfvars
+#*.tfvars
 
 # Project specific gitignore items from ICON project
 .idea/
@@ -23,3 +23,5 @@ tmp/
 ansible.sh
 ansible.cfg
 ssh.cfg
+
+_wip
