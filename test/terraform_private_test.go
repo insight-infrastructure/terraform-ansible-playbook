@@ -35,13 +35,10 @@ func TestTerraformPlaybookPrivate(t *testing.T)  {
 		TerraformDir: exampleFolder,
 
 		Vars: map[string]interface{}{
-			//"aws_region":    awsRegion,
 			"aws_region": "us-east-1",
 			"instance_name": instanceName,
 			"public_key_path" : publicKeyPath,
 			"private_key_path" : privateKeyPath,
-			//"public_key_path" : "/home/rob/.ssh/testing.pub",
-			//"private_key_path" : "/home/rob/.ssh/testing",
 			"user": "ubuntu",
 			"playbook_file_path" : path.Join(fixturesDir, "ansible", "basic.yml"),
 		},
