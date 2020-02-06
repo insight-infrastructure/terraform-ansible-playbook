@@ -1,6 +1,8 @@
 #  Local .terraform directories
 **/.terraform/*
 
+terraform.tfvars
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
@@ -18,10 +20,12 @@ _old/
 .terragrunt-cache/
 .terraform/
 
-tmp/
+.tmp/
 
 ansible.sh
 ansible.cfg
 ssh.cfg
+
+test/fixtures/keys/*
 
 _wip

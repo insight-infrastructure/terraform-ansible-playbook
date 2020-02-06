@@ -27,24 +27,31 @@ func TestTerraformPlaybookPublic(t *testing.T)  {
 
 	fixturesDir := path.Join(cwd, "fixtures")
 
-	terraformOptions := &terraform.Options{
-		TerraformDir: exampleFolder,
+	for _, i := range testCases {
+		varFile := path.Join(fixturesDir, "var-files", i)
+		terraformOptions := &terraform.Options{
+			TerraformDir: exampleFolder,
+			VarFiles: []string{varFile},
+			Vars: map[string]interface{}{
+				"aws_region":    awsRegion,
+				"instance_name": instanceName,
+				"public_key_path" :  path.Join(fixturesDir, "keys", "testing.pub"),
+				"private_key_path" : path.Join(fixturesDir, "keys", "testing"),
+				"user": "ubuntu",
+				"playbook_file_path" : path.Join(fixturesDir, "ansible", "basic.yml"),
 
-		Vars: map[string]interface{}{
-			"aws_region":    awsRegion,
-			"instance_name": instanceName,
-			"public_key_path" :  path.Join(fixturesDir, "keys", "testing.pub"),
-			"private_key_path" : path.Join(fixturesDir, "keys", "testing"),
-			"user": "ubuntu",
-			"playbook_file_path" : path.Join(fixturesDir, "ansible", "basic.yml"),
-		},
+			},
+
+		}
+
+		defer test_structure.RunTestStage(t, "teardown", func() {
+			terraform.Destroy(t, terraformOptions)
+		})
+
+		test_structure.RunTestStage(t, "setup", func() {
+			terraform.InitAndApply(t, terraformOptions)
+		})
 	}
 
-	defer test_structure.RunTestStage(t, "teardown", func() {
-		terraform.Destroy(t, terraformOptions)
-	})
 
-	test_structure.RunTestStage(t, "setup", func() {
-		terraform.InitAndApply(t, terraformOptions)
-	})
 }
