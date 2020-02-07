@@ -17,7 +17,7 @@ locals {
   inventory_ips = var.ips == null ? "" : "%{for ip in var.ips}${ip},%{ endfor }"
   inventory_ips_combined = "'${local.inventory_ips}${local.inventory_ip}'"
 
-  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory
+//  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory
 }
 
 data "template_file" "inventory" {
@@ -81,7 +81,7 @@ ansible-playbook '${var.playbook_file_path}' \
 --become \
 --forks=5 \
 --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no -o IdentitiesOnly=yes' \
-%{ if var.verbose }-vvvv ${ endif }\
+%{ if var.verbose }-vvvv %{ endif }\
 --private-key='${var.private_key_path}' %{ if var.playbook_vars != {} }\
 --extra-vars='${jsonencode(var.playbook_vars)}'%{ endif }
 EOT
