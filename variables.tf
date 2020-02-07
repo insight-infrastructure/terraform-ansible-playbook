@@ -1,22 +1,10 @@
-variable "name" {
-  type = string
-  default = "node-configuration"
-}
-
-variable "user" {
-  type = string
-  description = "The user used to configure the node"
-}
-
+###################
+# Playbook Env Vars
+###################
 variable "private_key_path" {
   type = string
   description = "Path to SSH private key to configure the node"
 }
-
-//variable "private_key" {
-//  type = string
-//  description = "SSH Private Key of to configure the node"
-//}
 
 variable "playbook_file_path" {
   type = string
@@ -29,6 +17,9 @@ variable "roles_dir" {
   default = ""
 }
 
+#################
+# Inventory Items
+#################
 variable "ip" {
   description = "The elastic ip address of the node being configured."
   default = ""
@@ -49,6 +40,19 @@ variable "inventory_file" {
   default = ""
 }
 
+variable "inventory_template" {
+  type = string
+  default = ""
+}
+
+variable "inventory_template_vars" {
+  type = map(string)
+  default = {}
+}
+
+############
+# ssh Config
+############
 variable "cidr_block_matches" {
   type = list(string)
   default = ["10.*.*.*", "17.??.*.*", "192.168.*.*"]
@@ -64,10 +68,12 @@ variable "bastion_ip" {
   default = ""
 }
 
-variable "playbook_vars" {
-  type = map(string)
-  default = {}
-  description = "Extra vars to include in run"
+###############
+# Playbook Args
+###############
+variable "user" {
+  type = string
+  description = "The user used to configure the node"
 }
 
 variable "verbose" {
@@ -75,6 +81,15 @@ variable "verbose" {
   default = false
 }
 
+variable "playbook_vars" {
+  type = map(string)
+  default = {}
+  description = "Extra vars to include in run"
+}
+
+#######
+# Other
+#######
 variable "cleanup" {
   type = bool
   default = false

@@ -1,4 +1,0 @@
-
-inventory = {
-  stuff = "things"
-}

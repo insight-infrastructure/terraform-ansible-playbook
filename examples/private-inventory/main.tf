@@ -89,10 +89,53 @@ resource "aws_instance" "host_2" {
   }
 }
 
+
+resource "aws_instance" "host_3" {
+  ami = data.aws_ami.ubuntu.id
+  instance_type = "t2.micro"
+
+  subnet_id = module.vpc.private_subnets[0]
+  vpc_security_group_ids = [aws_security_group.this.id]
+
+  key_name = aws_key_pair.this.key_name
+
+  tags = {
+    Name = "bastion-${random_pet.this.id}"
+  }
+}
+
+variable "inventory" {
+  type = string
+  default = ""
+}
+
+variable "inventory_file" {
+  type = string
+  default = ""
+}
+
+variable "inventory_template" {
+  type = string
+  default = ""
+}
+
+variable "inventory_template_vars" {
+  type = map(string)
+  default = {}
+}
+
+variable "ips" {
+  type = list(string)
+  default = null
+}
+
 module "ansible" {
   source = "../../"
 
-//  inventory = aws_instance.this.public_ip
+  inventory = var.inventory
+  inventory_file = var.inventory_file
+  inventory_template = var.inventory_template
+  inventory_template_vars = var.inventory_template_vars
 
   playbook_file_path = var.playbook_file_path
   roles_dir = "../ansible/roles"

@@ -12,26 +12,17 @@ variable "inventory_map" {
 
 // Order of precedence is inventory_file > inventory_yaml > ips > ip
 locals {
-  roles_dir = var.roles_dir == "" ? "${dirname(var.playbook_file_path)}/roles" : var.roles_dir
 
   inventory_ip = var.ip == "" ? "" : "${var.ip},"
   inventory_ips = var.ips == null ? "" : "%{for ip in var.ips}${ip},%{ endfor }"
   inventory_ips_combined = "'${local.inventory_ips}${local.inventory_ip}'"
 
-//  inventory_map = yamlencode(var.inventory_map)
-//  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory
+  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory
 }
 
-resource "template_file" "inventory" {
-
+data "template_file" "inventory" {
   template = <<-EOF
 
-EOF
-}
-
-data "template_file" "ansible_vars" {
-  template = <<-EOF
-keys
 EOF
 }
 
@@ -60,24 +51,6 @@ EOF
 //  %{ if var.private_key_path != "" }IdentityFile ${var.private_key_path}%{ endif }
 }
 
-//data "template_file" "ansible_cfg" {
-////  ssh_args = -F ./ssh.cfg
-//  template = <<-EOF
-//[ssh_connection]
-//ssh_args = -F ${path.module}/ssh.cfg -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=30m
-//control_path = ~/.ssh/mux-%r@%h:%p
-//EOF
-//}
-
-//data "template_file" "ansible_cfg" {
-//  //  ssh_args = -F ./ssh.cfg
-//  template = <<-EOF
-//[ssh_connection]
-//ssh_args = -F ${path.module}/ssh.cfg -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=30m
-//control_path = ~/.ssh/ansible-%%r@%%h:%%p
-//EOF
-//}
-
 data "template_file" "ansible_cfg" {
   //  ssh_args = -F ./ssh.cfg
   template = <<-EOF
@@ -98,6 +71,7 @@ ANSIBLE_SCP_IF_SSH=true
 ANSIBLE_FORCE_COLOR=true
 export ANSIBLE_SSH_RETRIES=3
 export ANSIBLE_HOST_KEY_CHECKING=False
+%{ if var.roles_dir != "" }ANSIBLE_ROLES_PATH='${var.roles_dir}'%{ endif }
 %{ if var.bastion_ip != "" }export ANSIBLE_CONFIG='${path.module}/ansible.cfg'%{ endif }
 ansible-playbook '${var.playbook_file_path}' \
 --inventory=${local.inventory_ips_combined} \
@@ -106,14 +80,13 @@ ansible-playbook '${var.playbook_file_path}' \
 --become-user='root' \
 --become \
 --forks=5 \
--vvvv \
 --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no -o IdentitiesOnly=yes' \
+%{ if var.verbose }-vvvv ${ endif }\
 --private-key='${var.private_key_path}' %{ if var.playbook_vars != {} }\
 --extra-vars='${jsonencode(var.playbook_vars)}'%{ endif }
 EOT
 }
 
-//%{ if var.roles_dir != "" }ANSIBLE_ROLES_PATH='${local.roles_dir}'%{ endif }
 //--ssh-extra-args='-p 22 -o StrictHostKeyChecking=no' \
 //-o ConnectTimeout=60 -o ConnectionAttempts=10
 //%{ if var.verbose }
