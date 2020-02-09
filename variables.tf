@@ -46,6 +46,7 @@ variable "inventory_template" {
 }
 
 variable "inventory_template_vars" {
+//  type = list(map(string))
   type = map(string)
   default = {}
 }

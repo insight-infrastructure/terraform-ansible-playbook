@@ -12,18 +12,29 @@ variable "inventory_map" {
 
 // Order of precedence is inventory_file > inventory_yaml > ips > ip
 locals {
+//  inventory_ip = var.ip == "" ? "" : "${var.ip},"
+//  inventory_ips = var.ips == null ? "" : "%{for ip in var.ips}${ip},%{ endfor }"
+//  inventory_ips_combined = "'${local.inventory_ips}${local.inventory_ip}'"
+//  inventory = var.inventory_file != "" ? var.inventory_file :
+//              var.inventory_template != "" ? local_file.inventory_template.*.filename[0] :
+//              var.ips != null ? "%{for ip in var.ips}${ip},%{ endfor }" :
+//              var.ip != "" ? "${var.ip}," : ""
 
-  inventory_ip = var.ip == "" ? "" : "${var.ip},"
-  inventory_ips = var.ips == null ? "" : "%{for ip in var.ips}${ip},%{ endfor }"
-  inventory_ips_combined = "'${local.inventory_ips}${local.inventory_ip}'"
-
-//  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory
+  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory_template != "" ? local_file.inventory_template.*.filename[0] : var.ips != null ? "%{for ip in var.ips}${ip},%{ endfor }" : var.ip != "" ? "${var.ip}," : ""
 }
 
-data "template_file" "inventory" {
-  template = <<-EOF
+resource "local_file" "inventory_template" {
+  count = var.inventory_template == "" ? 0 : 1
+  content     = data.template_file.inventory_template.*.rendered[0]
+  filename = "${path.module}/ansible_inventory"
 
-EOF
+  depends_on = [data.template_file.inventory_template]
+}
+
+data "template_file" "inventory_template" {
+  count = var.inventory_template == "" ? 0 : 1
+  template = file(var.inventory_template)
+  vars = var.inventory_template_vars
 }
 
 data "template_file" "ssh_cfg" {
@@ -48,7 +59,6 @@ Host ${var.bastion_ip}
   StrictHostKeyChecking=no
   UserKnownHostsFile=/dev/null
 EOF
-//  %{ if var.private_key_path != "" }IdentityFile ${var.private_key_path}%{ endif }
 }
 
 data "template_file" "ansible_cfg" {
@@ -65,16 +75,15 @@ data "template_file" "ansible_sh" {
 while ! nc -vz ${var.bastion_ip} 22; do
   sleep 1
 done
-sleep 5
 %{ endif }
 ANSIBLE_SCP_IF_SSH=true
 ANSIBLE_FORCE_COLOR=true
-export ANSIBLE_SSH_RETRIES=3
+export ANSIBLE_SSH_RETRIES=10
 export ANSIBLE_HOST_KEY_CHECKING=False
 %{ if var.roles_dir != "" }ANSIBLE_ROLES_PATH='${var.roles_dir}'%{ endif }
 %{ if var.bastion_ip != "" }export ANSIBLE_CONFIG='${path.module}/ansible.cfg'%{ endif }
 ansible-playbook '${var.playbook_file_path}' \
---inventory=${local.inventory_ips_combined} \
+--inventory=${local.inventory} \
 --user=${var.user} \
 --become-method='sudo' \
 --become-user='root' \
@@ -113,7 +122,6 @@ resource "null_resource" "ansible_run" {
     apply_time = timestamp()
   }
 
-//  command = "echo 'waiting 30 seconds' && sleep 30 && ${path.module}/ansible.sh"
   provisioner "local-exec" {
     command = "${path.module}/ansible.sh"
   }
@@ -139,27 +147,3 @@ EOT
 
   depends_on = [null_resource.ansible_run]
 }
-
-
-//resource "null_resource" "write_cfg" {
-//  triggers = {
-//    ip = var.ip
-//    sh_template = data.template_file.ansible_sh.rendered
-//    cfg_template = data.template_file.ansible_cfg.rendered
-//    ssh_template = data.template_file.ssh_cfg.rendered
-//  }
-//
-//  provisioner "local-exec" {
-//    command = <<-EOT
-//%{ if var.bastion_ip != "" }
-//echo '${data.template_file.ssh_cfg.rendered}' > ${path.module}/ssh.cfg
-//echo '${data.template_file.ansible_cfg.rendered}' > ${path.module}/ansible.cfg
-//%{ endif }
-//%{ if var.inventory != "" }
-//echo
-//%{ endif }
-//echo '${data.template_file.ansible_sh.rendered}' > ${path.module}/ansible.sh
-//EOT
-//  }
-////  Don't need to write ansible.sh but nice for debugging
-//}
