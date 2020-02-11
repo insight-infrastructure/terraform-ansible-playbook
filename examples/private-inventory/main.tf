@@ -5,8 +5,8 @@ resource "random_pet" "this" {
 
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
-  name = "my-vpc"
-  cidr = "10.0.0.0/16"
+  name   = "my-vpc"
+  cidr   = "10.0.0.0/16"
 
   azs             = ["${var.aws_region}a"]
   private_subnets = ["10.0.1.0/24"]
@@ -15,25 +15,25 @@ module "vpc" {
   enable_nat_gateway = false
 
   tags = {
-    Terraform = "true"
+    Terraform   = "true"
     Environment = "dev"
   }
 }
 
 resource "aws_key_pair" "this" {
-  key_name = random_pet.this.id
+  key_name   = random_pet.this.id
   public_key = file(var.public_key_path)
 }
 
 resource "aws_instance" "bastion" {
-  ami = data.aws_ami.ubuntu.id
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
 
-  subnet_id = module.vpc.public_subnets[0]
+  subnet_id              = module.vpc.public_subnets[0]
   vpc_security_group_ids = [aws_security_group.this.id]
 
   associate_public_ip_address = true
-  key_name = aws_key_pair.this.key_name
+  key_name                    = aws_key_pair.this.key_name
 
   tags = {
     Name = "bastion-${random_pet.this.id}"
@@ -62,10 +62,10 @@ resource "aws_security_group" "this" {
 }
 
 resource "aws_instance" "host_1" {
-  ami = data.aws_ami.ubuntu.id
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
 
-  subnet_id = module.vpc.private_subnets[0]
+  subnet_id              = module.vpc.private_subnets[0]
   vpc_security_group_ids = [aws_security_group.this.id]
 
   key_name = aws_key_pair.this.key_name
@@ -76,10 +76,10 @@ resource "aws_instance" "host_1" {
 }
 
 resource "aws_instance" "host_2" {
-  ami = data.aws_ami.ubuntu.id
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
 
-  subnet_id = module.vpc.private_subnets[0]
+  subnet_id              = module.vpc.private_subnets[0]
   vpc_security_group_ids = [aws_security_group.this.id]
 
   key_name = aws_key_pair.this.key_name
@@ -91,10 +91,10 @@ resource "aws_instance" "host_2" {
 
 
 resource "aws_instance" "host_3" {
-  ami = data.aws_ami.ubuntu.id
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
 
-  subnet_id = module.vpc.private_subnets[0]
+  subnet_id              = module.vpc.private_subnets[0]
   vpc_security_group_ids = [aws_security_group.this.id]
 
   key_name = aws_key_pair.this.key_name
@@ -105,44 +105,44 @@ resource "aws_instance" "host_3" {
 }
 
 variable "inventory" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "inventory_file" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "inventory_template" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "inventory_template_vars" {
-  type = map(string)
+  type    = map(string)
   default = {}
 }
 
 variable "ips" {
-  type = list(string)
+  type    = list(string)
   default = null
 }
 
 module "ansible" {
   source = "../../"
 
-  inventory = var.inventory
-  inventory_file = var.inventory_file
-  inventory_template = var.inventory_template
+  inventory               = var.inventory
+  inventory_file          = var.inventory_file
+  inventory_template      = var.inventory_template
   inventory_template_vars = var.inventory_template_vars
 
   playbook_file_path = var.playbook_file_path
-  roles_dir = "../ansible/roles"
+  roles_dir          = "../ansible/roles"
 
-  bastion_ip = aws_instance.bastion.public_ip
+  bastion_ip   = aws_instance.bastion.public_ip
   bastion_user = "ubuntu"
 
-  user = var.user
+  user             = var.user
   private_key_path = var.private_key_path
 }

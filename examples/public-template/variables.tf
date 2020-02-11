@@ -19,11 +19,11 @@ variable "playbook_file_path" {
 }
 
 variable "inventory_template" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "inventory_template_vars" {
-  type = map(string)
+  type    = map(string)
   default = {}
 }

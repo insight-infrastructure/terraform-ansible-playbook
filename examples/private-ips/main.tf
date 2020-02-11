@@ -4,26 +4,26 @@ resource "random_pet" "this" {
 
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
-  name = "my-vpc"
-  cidr = "10.0.0.0/16"
+  name   = "my-vpc"
+  cidr   = "10.0.0.0/16"
 
   azs = [
-    "${var.aws_region}a"]
+  "${var.aws_region}a"]
   private_subnets = [
-    "10.0.1.0/24"]
+  "10.0.1.0/24"]
   public_subnets = [
-    "10.0.101.0/24"]
+  "10.0.101.0/24"]
 
   enable_nat_gateway = false
 
   tags = {
-    Terraform = "true"
+    Terraform   = "true"
     Environment = "dev"
   }
 }
 
 resource "aws_key_pair" "this" {
-  key_name = random_pet.this.id
+  key_name   = random_pet.this.id
   public_key = file(var.public_key_path)
 }
 
@@ -32,31 +32,31 @@ resource "aws_security_group" "this" {
 
   egress {
     from_port = 0
-    to_port = 0
-    protocol = "-1"
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = [
-      "0.0.0.0/0"]
+    "0.0.0.0/0"]
   }
 
   ingress {
     from_port = 22
-    to_port = 22
-    protocol = "tcp"
+    to_port   = 22
+    protocol  = "tcp"
     cidr_blocks = [
-      "0.0.0.0/0"]
+    "0.0.0.0/0"]
   }
 }
 
 resource "aws_instance" "bastion" {
-  ami = data.aws_ami.ubuntu.id
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.small"
 
   subnet_id = module.vpc.public_subnets[0]
   vpc_security_group_ids = [
-    aws_security_group.this.id]
+  aws_security_group.this.id]
 
   associate_public_ip_address = true
-  key_name = aws_key_pair.this.key_name
+  key_name                    = aws_key_pair.this.key_name
 
   tags = {
     Name = "bastion-${random_pet.this.id}"
@@ -66,12 +66,12 @@ resource "aws_instance" "bastion" {
 resource "aws_instance" "private" {
   count = 2
 
-  ami = data.aws_ami.ubuntu.id
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.small"
 
   subnet_id = module.vpc.private_subnets[0]
   vpc_security_group_ids = [
-    aws_security_group.this.id]
+  aws_security_group.this.id]
 
   key_name = aws_key_pair.this.key_name
 
@@ -80,49 +80,17 @@ resource "aws_instance" "private" {
   }
 }
 
-
-//resource "aws_instance" "private_1" {
-//  ami = data.aws_ami.ubuntu.id
-//  instance_type = "t2.small"
-//
-//  subnet_id = module.vpc.private_subnets[0]
-//  vpc_security_group_ids = [
-//    aws_security_group.this.id]
-//
-//  key_name = aws_key_pair.this.key_name
-//
-//  tags = {
-//    Name = "private-${random_pet.this.id}-1"
-//  }
-//}
-//
-//resource "aws_instance" "private_2" {
-//  ami = data.aws_ami.ubuntu.id
-//  instance_type = "t2.small"
-//
-//  subnet_id = module.vpc.private_subnets[0]
-//  vpc_security_group_ids = [
-//    aws_security_group.this.id]
-//
-//  key_name = aws_key_pair.this.key_name
-//
-//  tags = {
-//    Name = "private-${random_pet.this.id}-2"
-//  }
-//}
-
 module "ansible" {
   source = "../../"
 
-//  ips = [aws_instance.private_1.private_ip, aws_instance.private_2.private_ip]
   ips = aws_instance.private.*.private_ip
 
   playbook_file_path = var.playbook_file_path
-  roles_dir = "../ansible/roles"
+  roles_dir          = "../ansible/roles"
 
-  bastion_ip = aws_instance.bastion.public_ip
+  bastion_ip   = aws_instance.bastion.public_ip
   bastion_user = "ubuntu"
 
-  user = var.user
+  user             = var.user
   private_key_path = var.private_key_path
 }

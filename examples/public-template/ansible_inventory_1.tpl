@@ -1,0 +1,1 @@
+../../test/fixtures/inventories/ansible_inventory_1.tpl

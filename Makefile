@@ -1,4 +1,5 @@
 SHELL := /bin/bash -euo pipefail
+.PHONY: test help
 
 help: 								## Show help.
 	@sed -ne '/@sed/!s/## //p' $(MAKEFILE_LIST)
@@ -9,6 +10,5 @@ clear-cache:						## Clear the terragrunt and terraform caches
 	find . -type f -name "*.tfstate*" -prune -exec rm -rf {} \;
 
 test:								## Run tests
-	go mod init \;
 	go test ./test -v -timeout 15m
 

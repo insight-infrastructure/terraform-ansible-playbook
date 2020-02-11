@@ -6,47 +6,53 @@ terraform {
 }
 
 variable "inventory_map" {
-  type = map(string)
+  type    = map(string)
   default = {}
 }
 
 // Order of precedence is inventory_file > inventory_yaml > ips > ip
 locals {
-//  inventory_ip = var.ip == "" ? "" : "${var.ip},"
-//  inventory_ips = var.ips == null ? "" : "%{for ip in var.ips}${ip},%{ endfor }"
-//  inventory_ips_combined = "'${local.inventory_ips}${local.inventory_ip}'"
-//  inventory = var.inventory_file != "" ? var.inventory_file :
-//              var.inventory_template != "" ? local_file.inventory_template.*.filename[0] :
-//              var.ips != null ? "%{for ip in var.ips}${ip},%{ endfor }" :
-//              var.ip != "" ? "${var.ip}," : ""
+  //  inventory_ip = var.ip == "" ? "" : "${var.ip},"
+  //  inventory_ips = var.ips == null ? "" : "%{for ip in var.ips}${ip},%{ endfor }"
+  //  inventory_ips_combined = "'${local.inventory_ips}${local.inventory_ip}'"
+  //  inventory = var.inventory_file != "" ? var.inventory_file :
+  //              var.inventory_template != "" ? local_file.inventory_template.*.filename[0] :
+  //              var.ips != null ? "%{for ip in var.ips}${ip},%{ endfor }" :
+  //              var.ip != "" ? "${var.ip}," : ""
 
-  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory_template != "" ? local_file.inventory_template.*.filename[0] : var.ips != null ? "%{for ip in var.ips}${ip},%{ endfor }" : var.ip != "" ? "${var.ip}," : ""
+  //  inventory = coalescelist(
+  //  [var.inventory_file],
+  //  local_file.inventory_template.*.filename,
+  //  var.ips != null ? ["%{for ip in var.ips}${ip},%{ endfor }"] : [],
+  //  ["${var.ip},"])[0]
+
+  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory_template != "" ? local_file.inventory_template.*.filename[0] : var.ips != null ? "%{for ip in var.ips}${ip},%{endfor}" : var.ip != "" ? "${var.ip}," : ""
 }
 
 resource "local_file" "inventory_template" {
-  count = var.inventory_template == "" ? 0 : 1
-  content     = data.template_file.inventory_template.*.rendered[0]
+  count    = var.inventory_template == "" ? 0 : 1
+  content  = data.template_file.inventory_template.*.rendered[0]
   filename = "${path.module}/ansible_inventory"
 
   depends_on = [data.template_file.inventory_template]
 }
 
 data "template_file" "inventory_template" {
-  count = var.inventory_template == "" ? 0 : 1
+  count    = var.inventory_template == "" ? 0 : 1
   template = file(var.inventory_template)
-  vars = var.inventory_template_vars
+  vars     = var.inventory_template_vars
 }
 
 data "template_file" "ssh_cfg" {
 
   template = <<-EOF
-%{ for cidr in var.cidr_block_matches }
+%{for cidr in var.cidr_block_matches}
 Host ${cidr}
   ProxyCommand    ssh -A -W %h:%p ${var.bastion_user}@${var.bastion_ip} -F ${path.module}/ssh.cfg
   IdentityFile    ${var.private_key_path}
   StrictHostKeyChecking no
   UserKnownHostsFile=/dev/null
-%{ endfor }
+%{endfor}
 
 Host ${var.bastion_ip}
   Hostname ${var.bastion_ip}
@@ -71,17 +77,17 @@ EOF
 
 data "template_file" "ansible_sh" {
   template = <<-EOT
-%{ if var.bastion_ip != "" }
+%{if var.bastion_ip != ""}
 while ! nc -vz ${var.bastion_ip} 22; do
   sleep 1
 done
-%{ endif }
+%{endif}
 ANSIBLE_SCP_IF_SSH=true
 ANSIBLE_FORCE_COLOR=true
 export ANSIBLE_SSH_RETRIES=10
 export ANSIBLE_HOST_KEY_CHECKING=False
-%{ if var.roles_dir != "" }ANSIBLE_ROLES_PATH='${var.roles_dir}'%{ endif }
-%{ if var.bastion_ip != "" }export ANSIBLE_CONFIG='${path.module}/ansible.cfg'%{ endif }
+%{if var.roles_dir != ""}ANSIBLE_ROLES_PATH='${var.roles_dir}'%{endif}
+%{if var.bastion_ip != ""}export ANSIBLE_CONFIG='${path.module}/ansible.cfg'%{endif}
 ansible-playbook '${var.playbook_file_path}' \
 --inventory=${local.inventory} \
 --user=${var.user} \
@@ -90,9 +96,9 @@ ansible-playbook '${var.playbook_file_path}' \
 --become \
 --forks=5 \
 --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no -o IdentitiesOnly=yes' \
-%{ if var.verbose }-vvvv %{ endif }\
---private-key='${var.private_key_path}' %{ if var.playbook_vars != {} }\
---extra-vars='${jsonencode(var.playbook_vars)}'%{ endif }
+%{if var.verbose}-vvvv %{endif}\
+--private-key='${var.private_key_path}' %{if var.playbook_vars != {} }\
+--extra-vars='${jsonencode(var.playbook_vars)}'%{endif}
 EOT
 }
 
@@ -102,18 +108,18 @@ EOT
 //-vvvv \ %{ endif }
 
 resource "local_file" "ssh_cfg" {
-  content     = data.template_file.ssh_cfg.rendered
+  content  = data.template_file.ssh_cfg.rendered
   filename = "${path.module}/ssh.cfg"
 }
 
 resource "local_file" "ansible_cfg" {
-  content     = data.template_file.ansible_cfg.rendered
+  content  = data.template_file.ansible_cfg.rendered
   filename = "${path.module}/ansible.cfg"
 }
 
 resource "local_file" "ansible_sh" {
-  content     = data.template_file.ansible_sh.rendered
-  filename = "${path.module}/ansible.sh"
+  content         = data.template_file.ansible_sh.rendered
+  filename        = "${path.module}/ansible.sh"
   file_permission = "0755"
 }
 
@@ -137,10 +143,10 @@ resource "null_resource" "cleanup" {
 
   provisioner "local-exec" {
     command = <<-EOT
-%{ if var.bastion_ip != "" }
+%{if var.bastion_ip != ""}
 rm -f ${path.module}/ssh.cfg
 rm -f ${path.module}/ansible.cfg
-%{ endif }
+%{endif}
 rm -f ${path.module}/ansible.sh
 EOT
   }
