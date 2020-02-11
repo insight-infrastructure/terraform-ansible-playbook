@@ -19,7 +19,7 @@ For Terraform v0.12.0+
 
 Single host:
 
-```
+```hcl
 resource "aws_instance" "this" {
   ami = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
@@ -41,7 +41,7 @@ module "ansible" {
 
 Bastion host:
 
-```
+```hcl
 resource "aws_instance" "bastion" {
   ami = data.aws_ami.ubuntu.id
   instance_type = "t2.small"
@@ -93,7 +93,7 @@ module "ansible" {
 
 With template:
 
-```
+```hcl
 resource "aws_instance" "this" {
   count = 3
   ami = data.aws_ami.ubuntu.id
@@ -142,23 +142,23 @@ EOT
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
-| bastion\_ip | n/a | `string` | `""` | no |
-| bastion\_user | n/a | `string` | `""` | no |
-| cidr\_block\_matches | ########### ssh Config ########### | `list(string)` | <pre>[<br>  "10.*.*.*",<br>  "17.??.*.*",<br>  "192.168.*.*"<br>]</pre> | no |
-| cleanup | ###### Other ###### | `bool` | `false` | no |
-| inventory | n/a | `map(string)` | `{}` | no |
-| inventory\_file | n/a | `string` | `""` | no |
+| bastion\_ip | The IP of the bastion host | `string` | `""` | no |
+| bastion\_user | The bastion user name | `string` | `""` | no |
+| cidr\_block\_matches | CIDR blocks to use for the bastion host | `list(string)` | <pre>[<br>  "10.*.*.*",<br>  "17.??.*.*",<br>  "192.168.*.*"<br>]</pre> | no |
+| cleanup | Debugging boolean to leave rendered files after call | `bool` | `false` | no |
+| inventory | Not implemented | `map(string)` | `{}` | no |
+| inventory\_file | The path to an inventory file | `string` | `""` | no |
 | inventory\_map | n/a | `map(string)` | `{}` | no |
-| inventory\_template | n/a | `string` | `""` | no |
-| inventory\_template\_vars | n/a | `map(string)` | `{}` | no |
+| inventory\_template | The path to a template to run against | `string` | `""` | no |
+| inventory\_template\_vars | A map of values to render the inventory template with | `map(string)` | `{}` | no |
 | ip | The elastic ip address of the node being configured. | `string` | `""` | no |
-| ips | n/a | `list(string)` | n/a | yes |
+| ips | A list of IPs to run against | `list(string)` | n/a | yes |
 | playbook\_file\_path | Absolute path to playbook file to configure the node | `string` | n/a | yes |
 | playbook\_vars | Extra vars to include in run | `map(string)` | `{}` | no |
 | private\_key\_path | Path to SSH private key to configure the node | `string` | n/a | yes |
 | roles\_dir | Absolute path to roles directory to configure the node | `string` | `""` | no |
 | user | The user used to configure the node | `string` | n/a | yes |
-| verbose | n/a | `bool` | `false` | no |
+| verbose | Boolean to force verbose mode on ansible call | `bool` | `false` | no |
 
 ## Outputs
 

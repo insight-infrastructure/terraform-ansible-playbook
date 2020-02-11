@@ -2,18 +2,18 @@
 # Playbook Env Vars
 ###################
 variable "private_key_path" {
-  type        = string
   description = "Path to SSH private key to configure the node"
+  type        = string
 }
 
 variable "playbook_file_path" {
-  type        = string
   description = "Absolute path to playbook file to configure the node"
+  type        = string
 }
 
 variable "roles_dir" {
-  type        = string
   description = "Absolute path to roles directory to configure the node"
+  type        = string
   default     = ""
 }
 
@@ -26,72 +26,81 @@ variable "ip" {
 }
 
 variable "ips" {
-  type    = list(string)
-  default = null
+  description = "A list of IPs to run against"
+  type        = list(string)
+  default     = null
 }
 
 variable "inventory" {
-  type    = map(string)
-  default = {}
+  description = "Not implemented"
+  type        = map(string)
+  default     = {}
 }
 
 variable "inventory_file" {
-  type    = string
-  default = ""
+  description = "The path to an inventory file"
+  type        = string
+  default     = ""
 }
 
 variable "inventory_template" {
-  type    = string
-  default = ""
+  description = "The path to a template to run against"
+  type        = string
+  default     = ""
 }
 
 variable "inventory_template_vars" {
-  //  type = list(map(string))
-  type    = map(string)
-  default = {}
+  description = "A map of values to render the inventory template with"
+  type        = map(string)
+  default     = {}
 }
 
 ############
 # ssh Config
 ############
 variable "cidr_block_matches" {
-  type    = list(string)
-  default = ["10.*.*.*", "17.??.*.*", "192.168.*.*"]
+  description = "CIDR blocks to use for the bastion host"
+  type        = list(string)
+  default     = ["10.*.*.*", "17.??.*.*", "192.168.*.*"]
 }
 
 variable "bastion_user" {
-  type    = string
-  default = ""
+  description = "The bastion user name"
+  type        = string
+  default     = ""
 }
 
 variable "bastion_ip" {
-  type    = string
-  default = ""
+  description = "The IP of the bastion host"
+  type        = string
+  default     = ""
 }
 
 ###############
 # Playbook Args
 ###############
 variable "user" {
-  type        = string
   description = "The user used to configure the node"
+  type        = string
 }
 
 variable "verbose" {
-  type    = bool
-  default = false
+  description = "Boolean to force verbose mode on ansible call"
+  type        = bool
+  default     = false
 }
 
 variable "playbook_vars" {
+  description = "Extra vars to include in run"
   type        = map(string)
   default     = {}
-  description = "Extra vars to include in run"
 }
 
 #######
 # Other
 #######
 variable "cleanup" {
-  type    = bool
-  default = false
+  description = "Debugging boolean to leave rendered files after call"
+  type        = bool
+  default     = false
 }
