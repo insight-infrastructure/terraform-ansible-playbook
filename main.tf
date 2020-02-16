@@ -29,12 +29,26 @@ locals {
   inventory = var.inventory_file != "" ? var.inventory_file : var.inventory_template != "" ? local_file.inventory_template.*.filename[0] : var.ips != null ? "%{for ip in var.ips}${ip},%{endfor}" : var.ip != "" ? "${var.ip}," : ""
 }
 
+resource "null_resource" "requirements" {
+  count = var.requirements_file_path == "" ? 0 : 1
+
+  triggers = {
+    apply_time = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+ansible-galaxy install -r ${var.requirements_file_path}
+EOT
+  }
+}
+
 resource "local_file" "inventory_template" {
   count    = var.inventory_template == "" ? 0 : 1
   content  = data.template_file.inventory_template.*.rendered[0]
   filename = "${path.module}/ansible_inventory"
 
-  depends_on = [data.template_file.inventory_template]
+  depends_on = [data.template_file.inventory_template, null_resource.requirements]
 }
 
 data "template_file" "inventory_template" {

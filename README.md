@@ -156,6 +156,7 @@ EOT
 | playbook\_file\_path | Absolute path to playbook file to configure the node | `string` | n/a | yes |
 | playbook\_vars | Extra vars to include in run | `map(string)` | `{}` | no |
 | private\_key\_path | Path to SSH private key to configure the node | `string` | n/a | yes |
+| requirements\_file\_path | The path to a requirements file for ansible galaxy | `string` | `""` | no |
 | roles\_dir | Absolute path to roles directory to configure the node | `string` | `""` | no |
 | user | The user used to configure the node | `string` | n/a | yes |
 | verbose | Boolean to force verbose mode on ansible call | `bool` | `false` | no |
