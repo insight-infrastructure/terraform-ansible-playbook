@@ -103,6 +103,12 @@ variable "playbook_vars" {
   default     = {}
 }
 
+variable "playbook_vars_file" {
+  description = "A path to a json / yaml for extra vars"
+  type = string
+  default = ""
+}
+
 #######
 # Other
 #######

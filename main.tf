@@ -20,12 +20,6 @@ locals {
   //              var.ips != null ? "%{for ip in var.ips}${ip},%{ endfor }" :
   //              var.ip != "" ? "${var.ip}," : ""
 
-  //  inventory = coalescelist(
-  //  [var.inventory_file],
-  //  local_file.inventory_template.*.filename,
-  //  var.ips != null ? ["%{for ip in var.ips}${ip},%{ endfor }"] : [],
-  //  ["${var.ip},"])[0]
-
   inventory = var.inventory_file != "" ? var.inventory_file : var.inventory_template != "" ? local_file.inventory_template.*.filename[0] : var.ips != null ? "%{for ip in var.ips}${ip},%{endfor}" : var.ip != "" ? "${var.ip}," : ""
 }
 
@@ -112,7 +106,8 @@ ansible-playbook '${var.playbook_file_path}' \
 --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no -o IdentitiesOnly=yes' \
 %{if var.verbose}-vvvv %{endif}\
 --private-key='${var.private_key_path}' %{if var.playbook_vars != {} }\
---extra-vars='${jsonencode(var.playbook_vars)}'%{endif}
+--extra-vars='${jsonencode(var.playbook_vars)}'%{endif} %{if var.playbook_vars_file != "" }\
+--extra-vars=@${var.playbook_vars_file}%{endif}
 EOT
 }
 
