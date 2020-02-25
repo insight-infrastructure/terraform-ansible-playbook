@@ -41,8 +41,6 @@ resource "local_file" "inventory_template" {
   count    = var.inventory_template == "" ? 0 : 1
   content  = template_file.inventory_template.*.rendered[0]
   filename = "${path.module}/ansible_inventory"
-
-  depends_on = [template_file.inventory_template, null_resource.requirements]
 }
 
 resource "template_file" "inventory_template" {
@@ -141,7 +139,7 @@ resource "null_resource" "ansible_run" {
     command = "${path.module}/ansible.sh"
   }
 
-  depends_on = [local_file.ansible_sh, local_file.ansible_cfg, local_file.ssh_cfg]
+  depends_on = [local_file.ansible_sh, local_file.ansible_cfg, local_file.ssh_cfg, null_resource.requirements, local_file.inventory_template]
 }
 
 resource "null_resource" "cleanup" {
