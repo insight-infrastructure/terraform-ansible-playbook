@@ -20,7 +20,8 @@ locals {
   //              var.ips != null ? "%{for ip in var.ips}${ip},%{ endfor }" :
   //              var.ip != "" ? "${var.ip}," : ""
 
-  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory_template != "" ? local_file.inventory_template.*.filename[0] : var.ips != null ? "%{for ip in var.ips}${ip},%{endfor}" : var.ip != "" ? "${var.ip}," : ""
+//  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory_template != "" ? local_file.inventory_template.*.filename[0] : var.ips != null ? "%{for ip in var.ips}${ip},%{endfor}" : var.ip != "" ? "${var.ip}," : ""
+  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory_template != "" ? "${path.module}/ansible_inventory" : var.ips != null ? "%{for ip in var.ips}${ip},%{endfor}" : var.ip != "" ? "${var.ip}," : ""
 }
 
 resource "null_resource" "requirements" {
@@ -37,10 +38,24 @@ EOT
   }
 }
 
-resource "local_file" "inventory_template" {
-  count    = var.inventory_template == "" ? 0 : 1
-  content  = template_file.inventory_template.*.rendered[0]
-  filename = "${path.module}/ansible_inventory"
+//resource "local_file" "inventory_template" {
+//  count    = var.inventory_template == "" ? 0 : 1
+//  content  = template_file.inventory_template.*.rendered[0]
+//  filename = "${path.module}/ansible_inventory"
+//}
+
+resource "null_resource" "inventory_template" {
+  triggers = {
+    apply_time = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+cat<<EOF > ${path.module}/ansible_inventory
+${templatefile(var.inventory_template, var.inventory_template_vars)}
+EOF
+EOT
+  }
 }
 
 resource "template_file" "inventory_template" {
@@ -139,7 +154,7 @@ resource "null_resource" "ansible_run" {
     command = "${path.module}/ansible.sh"
   }
 
-  depends_on = [local_file.ansible_sh, local_file.ansible_cfg, local_file.ssh_cfg, null_resource.requirements, local_file.inventory_template]
+  depends_on = [local_file.ansible_sh, local_file.ansible_cfg, local_file.ssh_cfg, null_resource.requirements, null_resource.inventory_template]
 }
 
 resource "null_resource" "cleanup" {
