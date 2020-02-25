@@ -39,19 +39,19 @@ EOT
 
 resource "local_file" "inventory_template" {
   count    = var.inventory_template == "" ? 0 : 1
-  content  = data.template_file.inventory_template.*.rendered[0]
+  content  = template_file.inventory_template.*.rendered[0]
   filename = "${path.module}/ansible_inventory"
 
-  depends_on = [data.template_file.inventory_template, null_resource.requirements]
+  depends_on = [template_file.inventory_template, null_resource.requirements]
 }
 
-data "template_file" "inventory_template" {
+resource "template_file" "inventory_template" {
   count    = var.inventory_template == "" ? 0 : 1
   template = file(var.inventory_template)
   vars     = var.inventory_template_vars
 }
 
-data "template_file" "ssh_cfg" {
+resource "template_file" "ssh_cfg" {
 
   template = <<-EOF
 %{for cidr in var.cidr_block_matches}
@@ -75,7 +75,7 @@ Host ${var.bastion_ip}
 EOF
 }
 
-data "template_file" "ansible_cfg" {
+resource "template_file" "ansible_cfg" {
   //  ssh_args = -F ./ssh.cfg
   template = <<-EOF
 [ssh_connection]
@@ -83,7 +83,7 @@ ssh_args = -C -F ${path.module}/ssh.cfg
 EOF
 }
 
-data "template_file" "ansible_sh" {
+resource "template_file" "ansible_sh" {
   template = <<-EOT
 %{if var.bastion_ip != ""}
 while ! nc -vz ${var.bastion_ip} 22; do
@@ -117,17 +117,17 @@ EOT
 //-vvvv \ %{ endif }
 
 resource "local_file" "ssh_cfg" {
-  content  = data.template_file.ssh_cfg.rendered
+  content  = template_file.ssh_cfg.rendered
   filename = "${path.module}/ssh.cfg"
 }
 
 resource "local_file" "ansible_cfg" {
-  content  = data.template_file.ansible_cfg.rendered
+  content  = template_file.ansible_cfg.rendered
   filename = "${path.module}/ansible.cfg"
 }
 
 resource "local_file" "ansible_sh" {
-  content         = data.template_file.ansible_sh.rendered
+  content         = template_file.ansible_sh.rendered
   filename        = "${path.module}/ansible.sh"
   file_permission = "0755"
 }

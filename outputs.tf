@@ -7,13 +7,13 @@ output "ip" {
 }
 
 output "ansible_sh" {
-  value = data.template_file.ansible_sh.rendered
+  value = template_file.ansible_sh.rendered
 }
 
 output "ansible_cfg" {
-  value = data.template_file.ansible_cfg.rendered
+  value = template_file.ansible_cfg.rendered
 }
 
 output "ssh_cfg" {
-  value = data.template_file.ssh_cfg.rendered
+  value = template_file.ssh_cfg.rendered
 }
