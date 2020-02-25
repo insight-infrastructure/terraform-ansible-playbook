@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
@@ -18,7 +17,7 @@ func TestTerraformPlaybookPublic(t *testing.T) {
 	exampleFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "examples/public")
 	uniqueID := random.UniqueId()
 	instanceName := fmt.Sprintf("terratest-private-%s", uniqueID)
-	awsRegion := aws.GetRandomStableRegion(t, nil, nil)
+	//awsRegion := aws.GetRandomStableRegion(t, nil, nil)
 
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -34,7 +33,8 @@ func TestTerraformPlaybookPublic(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		TerraformDir: exampleFolder,
 		Vars: map[string]interface{}{
-			"aws_region":         awsRegion,
+			//"aws_region":         awsRegion,
+			"aws_region":         "us-east-1",
 			"instance_name":      instanceName,
 			"public_key_path":    publicKeyPath,
 			"private_key_path":   privateKeyPath,
