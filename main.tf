@@ -45,6 +45,7 @@ EOT
 //}
 
 resource "null_resource" "inventory_template" {
+  count = var.inventory_template == "" ? 0 : 1
   triggers = {
     apply_time = timestamp()
   }
@@ -58,11 +59,11 @@ EOT
   }
 }
 
-resource "template_file" "inventory_template" {
-  count    = var.inventory_template == "" ? 0 : 1
-  template = file(var.inventory_template)
-  vars     = var.inventory_template_vars
-}
+//resource "template_file" "inventory_template" {
+//  count    = var.inventory_template == "" ? 0 : 1
+//  template = file(var.inventory_template)
+//  vars     = var.inventory_template_vars
+//}
 
 resource "template_file" "ssh_cfg" {
 
