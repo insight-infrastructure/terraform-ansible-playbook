@@ -34,6 +34,9 @@ resource "aws_instance" "this" {
 
 module "ansible" {
   source             = "../../"
+
+  create = var.create
+
   ip                 = aws_instance.this.public_ip
   playbook_file_path = var.playbook_file_path
   roles_dir          = "../ansible/roles"

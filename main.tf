@@ -5,10 +5,6 @@ terraform {
   required_version = ">= 0.12"
 }
 
-variable "inventory_map" {
-  type    = map(string)
-  default = {}
-}
 
 // Order of precedence is inventory_file > inventory_yaml > ips > ip
 locals {
@@ -25,7 +21,7 @@ locals {
 }
 
 resource "null_resource" "requirements" {
-  count = var.requirements_file_path == "" ? 0 : 1
+  count = var.requirements_file_path == "" || !var.create ? 0 : 1
 
   triggers = {
     apply_time = timestamp()
@@ -147,6 +143,8 @@ resource "local_file" "ansible_sh" {
 }
 
 resource "null_resource" "ansible_run" {
+  count = var.create ? 1 : 0
+
   triggers = {
     apply_time = timestamp()
   }

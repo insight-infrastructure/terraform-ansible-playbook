@@ -1,5 +1,5 @@
 output "status" {
-  value = "Node Configured! - ${null_resource.ansible_run.id}"
+  value = join("", null_resource.ansible_run.*.id) == "" ? "Node NOT configured...." : "Node Configured! - ${join("", null_resource.ansible_run.*.id)}"
 }
 
 output "ip" {

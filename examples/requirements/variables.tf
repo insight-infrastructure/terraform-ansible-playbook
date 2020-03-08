@@ -1,3 +1,7 @@
+variable "create" {
+  type = bool
+}
+
 variable "private_key_path" {
   type = string
 }

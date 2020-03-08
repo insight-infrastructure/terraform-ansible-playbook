@@ -1,3 +1,10 @@
+variable "create" {
+  description = "Boolean to ignore resource creation"
+  type = bool
+  default = true
+}
+
+
 variable "requirements_file_path" {
   description = "The path to a requirements file for ansible galaxy"
   type        = string
