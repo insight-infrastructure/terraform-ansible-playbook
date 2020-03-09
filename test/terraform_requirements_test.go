@@ -40,6 +40,7 @@ func TestTerraformPlaybookRequirements(t *testing.T) {
 			"private_key_path":   privateKeyPath,
 			"user":               "ubuntu",
 			"playbook_file_path": path.Join(fixturesDir, "ansible", "requirements-playbook.yml"),
+			"create": true,
 		},
 	}
 
