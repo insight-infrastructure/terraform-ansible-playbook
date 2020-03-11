@@ -114,10 +114,10 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 ansible-playbook '${local.playbook}' \
 --inventory=${local.inventory} \
 --user=${var.user} \
---become-method='sudo' \
---become-user='root' \
---become \
---forks=5 \
+%{if var.become}--become-method='${var.become_method}' %{endif}\
+%{if var.become}--become-user='${var.become_user}' %{endif}\
+%{if var.become}--become %{endif}\
+--forks=${var.forks} \
 --ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no -o IdentitiesOnly=yes' \
 %{if var.verbose}-vvvv %{endif}\
 --private-key='${var.private_key_path}' %{if var.playbook_vars != {} }\

@@ -128,6 +128,30 @@ variable "playbook_vars_file" {
   default = ""
 }
 
+variable "forks" {
+  description = "specify number of parallel processes to use (default=5)"
+  type = number
+  default = 5
+}
+
+variable "become" {
+  description = "Become root flag"
+  type = bool
+  default = true
+}
+
+variable "become_user" {
+  description = "The user to become"
+  type = string
+  default = "root"
+}
+
+variable "become_method" {
+  description = "privilege escalation method to use (default=%(default)s)"
+  type = string
+  default = "sudo"
+}
+
 #######
 # Other
 #######
