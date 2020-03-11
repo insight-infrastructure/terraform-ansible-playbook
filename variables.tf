@@ -11,7 +11,6 @@ variable "requirements_file_path" {
   default     = ""
 }
 
-
 ###################
 # Playbook Env Vars
 ###################
@@ -23,6 +22,19 @@ variable "private_key_path" {
 variable "playbook_file_path" {
   description = "Absolute path to playbook file to configure the node"
   type        = string
+  default = ""
+}
+
+variable "playbook_template_path" {
+  description = "A path to a go templated playbook yml file"
+  type = string
+  default = ""
+}
+
+variable "playbook_template_vars" {
+  description = "A map of variables for the playbook go template"
+  type = map(string)
+  default = {}
 }
 
 variable "roles_dir" {

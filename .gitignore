@@ -25,7 +25,9 @@ _old/
 ansible.sh
 ansible.cfg
 ssh.cfg
+playbook_template.yml
 
 test/fixtures/keys/*
+
 
 _wip

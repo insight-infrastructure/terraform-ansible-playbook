@@ -1,23 +1,13 @@
-data "aws_caller_identity" "this" {}
-data "aws_region" "current" {}
-
 terraform {
   required_version = ">= 0.12"
 }
 
 
-// Order of precedence is inventory_file > inventory_yaml > ips > ip
 locals {
-  //  inventory_ip = var.ip == "" ? "" : "${var.ip},"
-  //  inventory_ips = var.ips == null ? "" : "%{for ip in var.ips}${ip},%{ endfor }"
-  //  inventory_ips_combined = "'${local.inventory_ips}${local.inventory_ip}'"
-  //  inventory = var.inventory_file != "" ? var.inventory_file :
-  //              var.inventory_template != "" ? local_file.inventory_template.*.filename[0] :
-  //              var.ips != null ? "%{for ip in var.ips}${ip},%{ endfor }" :
-  //              var.ip != "" ? "${var.ip}," : ""
-
-//  inventory = var.inventory_file != "" ? var.inventory_file : var.inventory_template != "" ? local_file.inventory_template.*.filename[0] : var.ips != null ? "%{for ip in var.ips}${ip},%{endfor}" : var.ip != "" ? "${var.ip}," : ""
+  // Order of precedence is inventory_file > inventory_yaml > ips > ip
   inventory = var.inventory_file != "" ? var.inventory_file : var.inventory_template != "" ? "${path.module}/ansible_inventory" : var.ips != null ? "%{for ip in var.ips}${ip},%{endfor}" : var.ip != "" ? "${var.ip}," : ""
+
+  playbook = var.playbook_template_path == "" ? var.playbook_file_path : "${path.module}/playbook_template.yml"
 }
 
 resource "null_resource" "requirements" {
@@ -50,6 +40,21 @@ resource "null_resource" "inventory_template" {
     command = <<-EOT
 cat<<EOF > ${path.module}/ansible_inventory
 ${templatefile(var.inventory_template, var.inventory_template_vars)}
+EOF
+EOT
+  }
+}
+
+resource "null_resource" "playbook_template" {
+  count = var.playbook_template_path == "" ? 0 : 1
+  triggers = {
+    apply_time = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+cat<<EOF > ${path.module}/playbook_template.yml
+${templatefile(var.playbook_template_path, var.playbook_template_vars)}
 EOF
 EOT
   }
@@ -106,7 +111,7 @@ export ANSIBLE_SSH_RETRIES=10
 export ANSIBLE_HOST_KEY_CHECKING=False
 %{if var.roles_dir != ""}ANSIBLE_ROLES_PATH='${var.roles_dir}'%{endif}
 %{if var.bastion_ip != ""}export ANSIBLE_CONFIG='${path.module}/ansible.cfg'%{endif}
-ansible-playbook '${var.playbook_file_path}' \
+ansible-playbook '${local.playbook}' \
 --inventory=${local.inventory} \
 --user=${var.user} \
 --become-method='sudo' \
@@ -167,6 +172,9 @@ resource "null_resource" "cleanup" {
 %{if var.bastion_ip != ""}
 rm -f ${path.module}/ssh.cfg
 rm -f ${path.module}/ansible.cfg
+%{endif}
+%{if var.playbook_template_path != ""}
+rm -f ${path.module}/playbook_template.yml
 %{endif}
 rm -f ${path.module}/ansible.sh
 EOT
