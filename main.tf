@@ -11,7 +11,7 @@ locals {
 }
 
 resource "null_resource" "requirements" {
-  count = var.requirements_file_path == "" || !var.create ? 0 : 1
+  count = var.requirements_file_path == "" || ! var.create ? 0 : 1
 
   triggers = {
     apply_time = timestamp()
@@ -114,14 +114,25 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 ansible-playbook '${local.playbook}' \
 --inventory=${local.inventory} \
 --user=${var.user} \
+%{if var.ask_vault_pass}--ask-vault-pass %{endif}\
 %{if var.become}--become-method='${var.become_method}' %{endif}\
 %{if var.become}--become-user='${var.become_user}' %{endif}\
 %{if var.become}--become %{endif}\
+%{if var.flush_cache}--flush-cache %{endif}\
+%{if var.force_handlers}--force-handlers %{endif}\
+%{if var.scp_extra_args != ""}--scp-extra-args='${var.scp_extra_args}' %{endif}\
+%{if var.sftp_extra_args != ""}--sftp-extra-args='${var.sftp_extra_args}' %{endif}\
+%{if var.skip_tags != ""}--skip-tags='${var.skip_tags}' %{endif}\
+%{if var.ssh_common_args != ""}--ssh-common-args='${var.ssh_common_args}' %{endif}\
+%{if var.ssh_extra_args != ""}--ssh-extra-args='${var.ssh_extra_args}' %{endif}\
+%{if var.start_at_task != ""}--start-at-task='${var.start_at_task}' %{endif}\
+%{if var.step}--step %{endif}\
+%{if var.vault_id != ""}--vault-id %{endif}\
+%{if var.vault_password_file != ""}--vault-password-file='${var.vault_password_file}' %{endif}\
 --forks=${var.forks} \
---ssh-extra-args='-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no -o IdentitiesOnly=yes' \
 %{if var.verbose}-vvvv %{endif}\
 --private-key='${var.private_key_path}' %{if var.playbook_vars != {} }\
---extra-vars='${jsonencode(var.playbook_vars)}'%{endif} %{if var.playbook_vars_file != "" }\
+--extra-vars='${jsonencode(var.playbook_vars)}'%{endif} %{if var.playbook_vars_file != ""}\
 --extra-vars=@${var.playbook_vars_file}%{endif}
 EOT
 }

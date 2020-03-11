@@ -133,7 +133,6 @@ EOT
 
 | Name | Version |
 |------|---------|
-| aws | n/a |
 | local | n/a |
 | null | n/a |
 | template | n/a |
@@ -142,23 +141,42 @@ EOT
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
+| ask\_vault\_pass | ask for vault password | `bool` | `false` | no |
 | bastion\_ip | The IP of the bastion host | `string` | `""` | no |
 | bastion\_user | The bastion user name | `string` | `""` | no |
+| become | Become root flag | `bool` | `true` | no |
+| become\_method | privilege escalation method to use (default=%(default)s) | `string` | `"sudo"` | no |
+| become\_user | The user to become | `string` | `"root"` | no |
 | cidr\_block\_matches | CIDR blocks to use for the bastion host | `list(string)` | <pre>[<br>  "10.*.*.*",<br>  "17.??.*.*",<br>  "192.168.*.*"<br>]</pre> | no |
 | cleanup | Debugging boolean to leave rendered files after call | `bool` | `false` | no |
+| create | Boolean to ignore resource creation | `bool` | `true` | no |
+| flush\_cache | clear the fact cache for every host in inventory | `bool` | `false` | no |
+| force\_handlers | run handlers even if a task fails | `bool` | `false` | no |
+| forks | specify number of parallel processes to use (default=5) | `number` | `5` | no |
 | inventory | Not implemented | `map(string)` | `{}` | no |
 | inventory\_file | The path to an inventory file | `string` | `""` | no |
-| inventory\_map | n/a | `map(string)` | `{}` | no |
 | inventory\_template | The path to a template to run against | `string` | `""` | no |
 | inventory\_template\_vars | A map of values to render the inventory template with | `map(string)` | `{}` | no |
 | ip | The elastic ip address of the node being configured. | `string` | `""` | no |
 | ips | A list of IPs to run against | `list(string)` | n/a | yes |
-| playbook\_file\_path | Absolute path to playbook file to configure the node | `string` | n/a | yes |
+| playbook\_file\_path | Absolute path to playbook file to configure the node | `string` | `""` | no |
+| playbook\_template\_path | A path to a go templated playbook yml file | `string` | `""` | no |
+| playbook\_template\_vars | A map of variables for the playbook go template | `map(string)` | `{}` | no |
 | playbook\_vars | Extra vars to include in run | `map(string)` | `{}` | no |
+| playbook\_vars\_file | A path to a json / yaml for extra vars | `string` | `""` | no |
 | private\_key\_path | Path to SSH private key to configure the node | `string` | n/a | yes |
 | requirements\_file\_path | The path to a requirements file for ansible galaxy | `string` | `""` | no |
 | roles\_dir | Absolute path to roles directory to configure the node | `string` | `""` | no |
+| scp\_extra\_args | specify extra arguments to pass to scp only (e.g. -l) | `string` | `""` | no |
+| sftp\_extra\_args | specify extra arguments to pass to sftp only (e.g. -f, -l) | `string` | `""` | no |
+| skip\_tags | only run plays and tasks whose tags do not match these values | `string` | `""` | no |
+| ssh\_common\_args | specify common arguments to pass to sftp/scp/ssh (e.g. ProxyCommand) | `string` | `""` | no |
+| ssh\_extra\_args | specify extra arguments to pass to ssh only (e.g. -R) | `string` | `"-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no -o IdentitiesOnly=yes"` | no |
+| start\_at\_task | start the playbook at the task matching this name | `string` | `""` | no |
+| step | one-step-at-a-time: confirm each task before running | `bool` | `false` | no |
 | user | The user used to configure the node | `string` | n/a | yes |
+| vault\_id | the vault identity to use | `string` | `""` | no |
+| vault\_password\_file | vault password file | `string` | `""` | no |
 | verbose | Boolean to force verbose mode on ansible call | `bool` | `false` | no |
 
 ## Outputs

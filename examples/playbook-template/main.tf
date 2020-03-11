@@ -33,16 +33,18 @@ resource "aws_instance" "this" {
 }
 
 module "ansible" {
-  source             = "../../"
+  source = "../../"
 
-  ip                 = aws_instance.this.public_ip
+  ip                     = aws_instance.this.public_ip
   playbook_template_path = "${path.cwd}/playbook_template.yml"
-  playbook_template_vars = {role: "geerlingguy.java"}
+  playbook_template_vars = { role : "geerlingguy.java" }
 
-  roles_dir          = "../ansible/roles"
-  user               = "ubuntu"
-  private_key_path   = var.private_key_path
+  roles_dir        = "../ansible/roles"
+  user             = "ubuntu"
+  private_key_path = var.private_key_path
 
   requirements_file_path = "${path.cwd}/requirements.yml"
+
+  cleanup = false
 }
 

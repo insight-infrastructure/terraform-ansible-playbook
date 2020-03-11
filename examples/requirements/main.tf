@@ -33,7 +33,7 @@ resource "aws_instance" "this" {
 }
 
 module "ansible" {
-  source             = "../../"
+  source = "../../"
 
   create = var.create
 
