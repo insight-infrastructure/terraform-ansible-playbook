@@ -13,11 +13,8 @@ locals {
 resource "null_resource" "requirements" {
   count = var.requirements_file_path == "" || ! var.create ? 0 : 1
 
-  triggers = {
-    apply_time = timestamp()
-  }
-
   provisioner "local-exec" {
+    when = create
     command = <<-EOT
 ansible-galaxy install -r ${var.requirements_file_path}
 EOT
@@ -32,11 +29,9 @@ EOT
 
 resource "null_resource" "inventory_template" {
   count = var.inventory_template == "" ? 0 : 1
-  triggers = {
-    apply_time = timestamp()
-  }
 
   provisioner "local-exec" {
+    when = create
     command = <<-EOT
 cat<<EOF > ${path.module}/ansible_inventory
 ${templatefile(var.inventory_template, var.inventory_template_vars)}
@@ -47,11 +42,9 @@ EOT
 
 resource "null_resource" "playbook_template" {
   count = var.playbook_template_path == "" ? 0 : 1
-  triggers = {
-    apply_time = timestamp()
-  }
 
   provisioner "local-exec" {
+    when = create
     command = <<-EOT
 cat<<EOF > ${path.module}/playbook_template.yml
 ${templatefile(var.playbook_template_path, var.playbook_template_vars)}
@@ -137,11 +130,6 @@ ansible-playbook '${local.playbook}' \
 EOT
 }
 
-//--ssh-extra-args='-p 22 -o StrictHostKeyChecking=no' \
-//-o ConnectTimeout=60 -o ConnectionAttempts=10
-//%{ if var.verbose }
-//-vvvv \ %{ endif }
-
 resource "local_file" "ssh_cfg" {
   content  = template_file.ssh_cfg.rendered
   filename = "${path.module}/ssh.cfg"
@@ -161,11 +149,8 @@ resource "local_file" "ansible_sh" {
 resource "null_resource" "ansible_run" {
   count = var.create ? 1 : 0
 
-  triggers = {
-    apply_time = timestamp()
-  }
-
   provisioner "local-exec" {
+    when = create
     command = "${path.module}/ansible.sh"
   }
 
