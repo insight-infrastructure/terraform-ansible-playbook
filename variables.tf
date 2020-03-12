@@ -118,7 +118,7 @@ variable "verbose" {
 
 variable "playbook_vars" {
   description = "Extra vars to include in run"
-  type        = map(string)
+  type        = map(any)
   default     = {}
 }
 
