@@ -41,7 +41,7 @@ func TestTerraformPlaybookPublicTemplate(t *testing.T)  {
 			"public_key_path":    publicKeyPath,
 			"private_key_path":   privateKeyPath,
 			"user":               "ubuntu",
-			"playbook_file_path": path.Join(fixturesDir, "ansible", "basic.yml"),
+			"playbook_file_path": path.Join(fixturesDir, "ansible", "example_vars.yml"),
 			"inventory_template": path.Join(fixturesDir, "inventories", "ansible_inventory_1.tpl"),
 		},
 	}

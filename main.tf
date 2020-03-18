@@ -124,9 +124,9 @@ ansible-playbook '${local.playbook}' \
 %{if var.vault_password_file != ""}--vault-password-file='${var.vault_password_file}' %{endif}\
 --forks=${var.forks} \
 %{if var.verbose}-vvvv %{endif}\
---private-key='${var.private_key_path}' %{if var.playbook_vars != {} }\
---extra-vars='${jsonencode(var.playbook_vars)}'%{endif} %{if var.playbook_vars_file != ""}\
---extra-vars=@${var.playbook_vars_file}%{endif}
+--private-key='${var.private_key_path}'\
+%{if var.playbook_vars != {} }--extra-vars='${jsonencode(var.playbook_vars)}'%{endif} \
+%{if var.playbook_vars_file != ""}--extra-vars=@${var.playbook_vars_file}%{endif}
 EOT
 }
 
@@ -158,12 +158,10 @@ resource "null_resource" "ansible_run" {
 }
 
 resource "null_resource" "cleanup" {
-  count = var.cleanup ? 1 : 0
-  triggers = {
-    apply_time = timestamp()
-  }
+  count = var.cleanup && var.create ? 1 : 0
 
   provisioner "local-exec" {
+    when = create
     command = <<-EOT
 %{if var.bastion_ip != ""}
 rm -f ${path.module}/ssh.cfg
