@@ -8,9 +8,39 @@ import (
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"log"
+	"os"
+	"path"
 )
 
-func generateKeys(privateKeyPath string, publicKeyPath string)  {
+type KeyPairPath struct {
+	PublicKeyPath  string
+	PrivateKeyPath string
+}
+
+func generateLocalKeys(KeyPath ...string) (*KeyPairPath) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+
+	fixturesDir := path.Join(cwd, "fixtures")
+
+	privateKeyPath := path.Join(fixturesDir, "./keys/id_rsa_test")
+	publicKeyPath := path.Join(fixturesDir, "./keys/id_rsa_test.pub")
+
+	if len(KeyPath) > 0 {
+		privateKeyPath = KeyPath[0]
+	}
+
+	generateKeys(privateKeyPath, publicKeyPath)
+
+	return &KeyPairPath{
+		PublicKeyPath:  publicKeyPath,
+		PrivateKeyPath: privateKeyPath,
+	}
+}
+
+func generateKeys(privateKeyPath string, publicKeyPath string) {
 	bitSize := 4096
 
 	privateKey, err := generatePrivateKey(bitSize)

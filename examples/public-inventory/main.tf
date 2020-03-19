@@ -33,12 +33,12 @@ resource "aws_instance" "this" {
   associate_public_ip_address = true
 }
 
-//module "ansible" {
-//  source = "../../"
-//  ip = aws_instance.this.public_ip
-//  playbook_file_path = var.playbook_file_path
-//  roles_dir = "../ansible/roles"
-//  user = "ubuntu"
-//  private_key_path = var.private_key_path
-//}
-
+module "ansible" {
+  source = "../../"
+  ip = aws_instance.this.public_ip
+  playbook_file_path = var.playbook_file_path
+  roles_dir = "../ansible/roles"
+  user = "ubuntu"
+  private_key_path = var.private_key_path
+  playbook_vars_file = "${path.cwd}/vars.yml"
+}

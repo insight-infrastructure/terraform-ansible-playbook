@@ -39,5 +39,8 @@ module "ansible" {
   roles_dir          = "../ansible/roles"
   user               = "ubuntu"
   private_key_path   = var.private_key_path
+
+  tags = "stuff"
+  skip_tags = "things"
 }
 

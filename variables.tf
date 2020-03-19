@@ -212,6 +212,12 @@ variable "step" {
   default     = false
 }
 
+variable "tags" {
+  description = "only run plays and tasks tagged with these values"
+  type = string
+  default = ""
+}
+
 variable "vault_id" {
   description = "the vault identity to use"
   type        = string

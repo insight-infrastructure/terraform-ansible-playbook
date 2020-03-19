@@ -1,0 +1,2 @@
+- debug:
+    msg: "{{ test_var }}"

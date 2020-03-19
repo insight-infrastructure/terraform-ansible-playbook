@@ -13,8 +13,11 @@ locals {
 resource "null_resource" "requirements" {
   count = var.requirements_file_path == "" || ! var.create ? 0 : 1
 
+  triggers = {
+    apply_time = timestamp()
+  }
+
   provisioner "local-exec" {
-    when = create
     command = <<-EOT
 ansible-galaxy install -r ${var.requirements_file_path}
 EOT
@@ -30,8 +33,11 @@ EOT
 resource "null_resource" "inventory_template" {
   count = var.inventory_template == "" ? 0 : 1
 
+  triggers = {
+    apply_time = timestamp()
+  }
+
   provisioner "local-exec" {
-    when = create
     command = <<-EOT
 cat<<EOF > ${path.module}/ansible_inventory
 ${templatefile(var.inventory_template, var.inventory_template_vars)}
@@ -43,8 +49,11 @@ EOT
 resource "null_resource" "playbook_template" {
   count = var.playbook_template_path == "" ? 0 : 1
 
+  triggers = {
+    apply_time = timestamp()
+  }
+
   provisioner "local-exec" {
-    when = create
     command = <<-EOT
 cat<<EOF > ${path.module}/playbook_template.yml
 ${templatefile(var.playbook_template_path, var.playbook_template_vars)}
@@ -102,7 +111,7 @@ ANSIBLE_SCP_IF_SSH=true
 ANSIBLE_FORCE_COLOR=true
 export ANSIBLE_SSH_RETRIES=10
 export ANSIBLE_HOST_KEY_CHECKING=False
-%{if var.roles_dir != ""}ANSIBLE_ROLES_PATH='${var.roles_dir}'%{endif}
+%{if var.roles_dir != ""}ANSIBLE_ROLES_PATH='${var.roles_dir}' %{endif}
 %{if var.bastion_ip != ""}export ANSIBLE_CONFIG='${path.module}/ansible.cfg'%{endif}
 ansible-playbook '${local.playbook}' \
 --inventory=${local.inventory} \
@@ -120,13 +129,14 @@ ansible-playbook '${local.playbook}' \
 %{if var.ssh_extra_args != ""}--ssh-extra-args='${var.ssh_extra_args}' %{endif}\
 %{if var.start_at_task != ""}--start-at-task='${var.start_at_task}' %{endif}\
 %{if var.step}--step %{endif}\
+%{if var.tags != ""}--tags='${var.tags}' %{endif}\
 %{if var.vault_id != ""}--vault-id %{endif}\
 %{if var.vault_password_file != ""}--vault-password-file='${var.vault_password_file}' %{endif}\
 --forks=${var.forks} \
 %{if var.verbose}-vvvv %{endif}\
---private-key='${var.private_key_path}'\
-%{if var.playbook_vars != {} }--extra-vars='${jsonencode(var.playbook_vars)}'%{endif} \
-%{if var.playbook_vars_file != ""}--extra-vars=@${var.playbook_vars_file}%{endif}
+--private-key='${var.private_key_path}' \
+%{if var.playbook_vars != {} }--extra-vars='${jsonencode(var.playbook_vars)}' %{endif} \
+%{if var.playbook_vars_file != ""}--extra-vars=@${var.playbook_vars_file} %{endif}
 EOT
 }
 
@@ -149,8 +159,11 @@ resource "local_file" "ansible_sh" {
 resource "null_resource" "ansible_run" {
   count = var.create ? 1 : 0
 
+  triggers = {
+    apply_time = timestamp()
+  }
+
   provisioner "local-exec" {
-    when = create
     command = "${path.module}/ansible.sh"
   }
 
@@ -160,8 +173,11 @@ resource "null_resource" "ansible_run" {
 resource "null_resource" "cleanup" {
   count = var.cleanup && var.create ? 1 : 0
 
+  triggers = {
+    apply_time = timestamp()
+  }
+
   provisioner "local-exec" {
-    when = create
     command = <<-EOT
 %{if var.bastion_ip != ""}
 rm -f ${path.module}/ssh.cfg

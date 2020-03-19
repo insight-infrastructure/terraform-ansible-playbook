@@ -1,0 +1,45 @@
+- name: stuff and things
+  file:
+    path: /etc/stuffntings.conf
+    state: touch
+  tags:
+    - stuff
+    - things
+
+- name: things
+  file:
+    path: /etc/things.conf
+    state: touch
+  tags:
+    - things
+
+- name: stuff
+  file:
+    path: /etc/stuff.conf
+    state: touch
+  tags:
+    - stuff
+
+- name: no stuff and things
+  file:
+    path: /etc/nostuffntings.conf
+    state: touch
+
+- debug:
+    msg: stuff and things
+  tags:
+    - stuff
+    - things
+
+- debug:
+    msg: stuff
+  tags:
+    - stuff
+
+- debug:
+    msg: things
+  tags:
+    - things
+
+- debug:
+    msg: no stuff and things
