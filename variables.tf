@@ -4,6 +4,11 @@ variable "create" {
   default     = true
 }
 
+variable "module_depends_on" {
+  description = "List to have module depend on"
+  type = list(string)
+  default = [""]
+}
 
 variable "requirements_file_path" {
   description = "The path to a requirements file for ansible galaxy"

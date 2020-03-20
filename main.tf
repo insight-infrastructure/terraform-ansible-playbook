@@ -10,6 +10,12 @@ locals {
   playbook = var.playbook_template_path == "" ? var.playbook_file_path : "${path.module}/playbook_template.yml"
 }
 
+resource "null_resource" "module_depends_on" {
+  triggers = {
+    value = length(var.module_depends_on)
+  }
+}
+
 resource "null_resource" "requirements" {
   count = var.requirements_file_path == "" || ! var.create ? 0 : 1
 
