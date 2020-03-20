@@ -5,9 +5,9 @@ variable "create" {
 }
 
 variable "module_depends_on" {
-  description = "List to have module depend on"
-  type = list(string)
-  default = [""]
+  description = "Any to have module depend on"
+  type = any
+  default = null
 }
 
 variable "requirements_file_path" {

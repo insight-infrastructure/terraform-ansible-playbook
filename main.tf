@@ -10,12 +10,6 @@ locals {
   playbook = var.playbook_template_path == "" ? var.playbook_file_path : "${path.module}/playbook_template.yml"
 }
 
-resource "null_resource" "module_depends_on" {
-  triggers = {
-    value = length(var.module_depends_on)
-  }
-}
-
 resource "null_resource" "requirements" {
   count = var.requirements_file_path == "" || ! var.create ? 0 : 1
 
@@ -173,7 +167,7 @@ resource "null_resource" "ansible_run" {
     command = "${path.module}/ansible.sh"
   }
 
-  depends_on = [local_file.ansible_sh, local_file.ansible_cfg, local_file.ssh_cfg, null_resource.requirements, null_resource.inventory_template]
+  depends_on = [local_file.ansible_sh, local_file.ansible_cfg, local_file.ssh_cfg, null_resource.requirements, null_resource.inventory_template, var.module_depends_on]
 }
 
 resource "null_resource" "cleanup" {
@@ -196,5 +190,5 @@ rm -f ${path.module}/ansible.sh
 EOT
   }
 
-  depends_on = [null_resource.ansible_run]
+  depends_on = [null_resource.ansible_run, var.module_depends_on]
 }
