@@ -151,6 +151,7 @@ EOT
 | cleanup | Debugging boolean to leave rendered files after call | `bool` | `false` | no |
 | create | Boolean to ignore resource creation | `bool` | `true` | no |
 | flush\_cache | clear the fact cache for every host in inventory | `bool` | `false` | no |
+| force\_create | Force apply resources - overrides normal watcher for change in resources to apply. | `bool` | `false` | no |
 | force\_handlers | run handlers even if a task fails | `bool` | `false` | no |
 | forks | specify number of parallel processes to use (default=5) | `number` | `5` | no |
 | inventory | Not implemented | `map(string)` | `{}` | no |
@@ -159,10 +160,11 @@ EOT
 | inventory\_template\_vars | A map of values to render the inventory template with | `map(string)` | `{}` | no |
 | ip | The elastic ip address of the node being configured. | `string` | `""` | no |
 | ips | A list of IPs to run against | `list(string)` | n/a | yes |
+| module\_depends\_on | Any to have module depend on | `any` | n/a | yes |
 | playbook\_file\_path | Absolute path to playbook file to configure the node | `string` | `""` | no |
 | playbook\_template\_path | A path to a go templated playbook yml file | `string` | `""` | no |
 | playbook\_template\_vars | A map of variables for the playbook go template | `map(string)` | `{}` | no |
-| playbook\_vars | Extra vars to include in run | `map(string)` | `{}` | no |
+| playbook\_vars | Extra vars to include in run | `map(any)` | `{}` | no |
 | playbook\_vars\_file | A path to a json / yaml for extra vars | `string` | `""` | no |
 | private\_key\_path | Path to SSH private key to configure the node | `string` | n/a | yes |
 | requirements\_file\_path | The path to a requirements file for ansible galaxy | `string` | `""` | no |
@@ -174,6 +176,7 @@ EOT
 | ssh\_extra\_args | specify extra arguments to pass to ssh only (e.g. -R) | `string` | `"-p 22 -o ConnectTimeout=10 -o ConnectionAttempts=10 -o StrictHostKeyChecking=no -o IdentitiesOnly=yes"` | no |
 | start\_at\_task | start the playbook at the task matching this name | `string` | `""` | no |
 | step | one-step-at-a-time: confirm each task before running | `bool` | `false` | no |
+| tags | only run plays and tasks tagged with these values | `string` | `""` | no |
 | user | The user used to configure the node | `string` | n/a | yes |
 | vault\_id | the vault identity to use | `string` | `""` | no |
 | vault\_password\_file | vault password file | `string` | `""` | no |

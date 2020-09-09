@@ -24,12 +24,6 @@ EOT
   }
 }
 
-//resource "local_file" "inventory_template" {
-//  count    = var.inventory_template == "" ? 0 : 1
-//  content  = template_file.inventory_template.*.rendered[0]
-//  filename = "${path.module}/ansible_inventory"
-//}
-
 resource "null_resource" "inventory_template" {
   count = var.inventory_template == "" ? 0 : 1
 
@@ -61,12 +55,6 @@ EOF
 EOT
   }
 }
-
-//resource "template_file" "inventory_template" {
-//  count    = var.inventory_template == "" ? 0 : 1
-//  template = file(var.inventory_template)
-//  vars     = var.inventory_template_vars
-//}
 
 resource "template_file" "ssh_cfg" {
 
@@ -160,7 +148,12 @@ resource "null_resource" "ansible_run" {
   count = var.create ? 1 : 0
 
   triggers = {
-    apply_time = timestamp()
+    ansible_cfg  = local_file.ansible_cfg.content
+    ssh_cfg      = local_file.ssh_cfg.content
+    ansible_sh   = local_file.ansible_sh.content
+    playbook     = local.playbook
+    inventory    = local.inventory
+    force_create = var.force_create ? timestamp() : ""
   }
 
   provisioner "local-exec" {

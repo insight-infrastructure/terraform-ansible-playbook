@@ -4,10 +4,16 @@ variable "create" {
   default     = true
 }
 
+variable "force_create" {
+  description = "Force apply resources - overrides normal watcher for change in resources to apply."
+  type        = bool
+  default     = false
+}
+
 variable "module_depends_on" {
   description = "Any to have module depend on"
-  type = any
-  default = null
+  type        = any
+  default     = null
 }
 
 variable "requirements_file_path" {
@@ -219,8 +225,8 @@ variable "step" {
 
 variable "tags" {
   description = "only run plays and tasks tagged with these values"
-  type = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable "vault_id" {
