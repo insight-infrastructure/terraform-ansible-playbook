@@ -196,11 +196,7 @@ EOT
 
 ## Authors
 
-Module managed by [robc-io](github.com/robc-io)
-
-## Credits
-
-- [Anton Babenko](https://github.com/antonbabenko)
+Module managed by [robcxyz](github.com/robcxyz) and [Insight Data Science](https://insightfellows.com/).
 
 ## License
 
