@@ -19,16 +19,10 @@ resource "null_resource" "requirements" {
 
   provisioner "local-exec" {
     command = <<-EOT
-ansible-galaxy install -r ${var.requirements_file_path}
+ansible-galaxy install -r ${var.requirements_file_path} -f
 EOT
   }
 }
-
-//resource "local_file" "inventory_template" {
-//  count    = var.inventory_template == "" ? 0 : 1
-//  content  = template_file.inventory_template.*.rendered[0]
-//  filename = "${path.module}/ansible_inventory"
-//}
 
 resource "null_resource" "inventory_template" {
   count = var.inventory_template == "" ? 0 : 1
@@ -62,12 +56,6 @@ EOT
   }
 }
 
-//resource "template_file" "inventory_template" {
-//  count    = var.inventory_template == "" ? 0 : 1
-//  template = file(var.inventory_template)
-//  vars     = var.inventory_template_vars
-//}
-
 resource "template_file" "ssh_cfg" {
 
   template = <<-EOF
@@ -93,7 +81,6 @@ EOF
 }
 
 resource "template_file" "ansible_cfg" {
-  //  ssh_args = -F ./ssh.cfg
   template = <<-EOF
 [ssh_connection]
 ssh_args = -C -F ${path.module}/ssh.cfg
