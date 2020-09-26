@@ -151,6 +151,7 @@ EOT
 | cleanup | Debugging boolean to leave rendered files after call | `bool` | `false` | no |
 | create | Boolean to ignore resource creation | `bool` | `true` | no |
 | flush\_cache | clear the fact cache for every host in inventory | `bool` | `false` | no |
+| force\_create | Force apply resources - overrides normal watcher for change in resources to apply. | `bool` | `false` | no |
 | force\_handlers | run handlers even if a task fails | `bool` | `false` | no |
 | forks | specify number of parallel processes to use (default=5) | `number` | `5` | no |
 | inventory | Not implemented | `map(string)` | `{}` | no |

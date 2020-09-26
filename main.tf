@@ -147,7 +147,12 @@ resource "null_resource" "ansible_run" {
   count = var.create ? 1 : 0
 
   triggers = {
-    apply_time = timestamp()
+    ansible_cfg  = local_file.ansible_cfg.content
+    ssh_cfg      = local_file.ssh_cfg.content
+    ansible_sh   = local_file.ansible_sh.content
+    playbook     = local.playbook
+    inventory    = local.inventory
+    force_create = var.force_create ? timestamp() : ""
   }
 
   provisioner "local-exec" {

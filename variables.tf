@@ -4,6 +4,12 @@ variable "create" {
   default     = true
 }
 
+variable "force_create" {
+  description = "Force apply resources - overrides normal watcher for change in resources to apply."
+  type        = bool
+  default     = false
+}
+
 variable "module_depends_on" {
   description = "Any to have module depend on"
   type        = any
