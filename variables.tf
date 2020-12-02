@@ -148,7 +148,7 @@ variable "forks" {
 variable "become" {
   description = "Become root flag"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "become_user" {

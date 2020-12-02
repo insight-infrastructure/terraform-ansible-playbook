@@ -1,7 +1,12 @@
 # terraform-aws-icon-node-configuration
 
-Terraform module for running ansible playbooks. Supports running over bastion host. Inventory can be supplied with
-variables in the following order of precedence:
+Terraform module for running ansible playbooks. Wraps all the flags supported by the 
+`ansible-playbook` command per [docs](https://docs.ansible.com/ansible/latest/cli/ansible-playbook.html). 
+Supports running over bastion host along with a couple templating functions to help with some circumstances. 
+
+
+Inventory can be supplied with
+variables in the following order of precedence:true
 - inventory_file - path to inventory file
 - inventory_template - path to inventory template to render with inventory_template_vars
 - ips - list of IPs to run against
@@ -12,8 +17,6 @@ More options will be built in the future.
 ## Terraform versions
 
 For Terraform v0.12.0+
-
-
 
 ## Usage
 
@@ -144,7 +147,7 @@ EOT
 | ask\_vault\_pass | ask for vault password | `bool` | `false` | no |
 | bastion\_ip | The IP of the bastion host | `string` | `""` | no |
 | bastion\_user | The bastion user name | `string` | `""` | no |
-| become | Become root flag | `bool` | `true` | no |
+| become | Become root flag | `bool` | `false` | no |
 | become\_method | privilege escalation method to use (default=%(default)s) | `string` | `"sudo"` | no |
 | become\_user | The user to become | `string` | `"root"` | no |
 | cidr\_block\_matches | CIDR blocks to use for the bastion host | `list(string)` | <pre>[<br>  "10.*.*.*",<br>  "17.??.*.*",<br>  "192.168.*.*"<br>]</pre> | no |

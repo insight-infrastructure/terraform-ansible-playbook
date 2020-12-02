@@ -37,9 +37,9 @@ module "ansible" {
 
   ip                     = aws_instance.this.public_ip
   playbook_template_path = "${path.cwd}/playbook_template.yml"
-  playbook_template_vars = { role : "geerlingguy.java" }
+  playbook_template_vars = { role : "geerlingguy.docker" }
+  become                 = true
 
-  roles_dir        = "../ansible/roles"
   user             = "ubuntu"
   private_key_path = var.private_key_path
 

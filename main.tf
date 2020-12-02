@@ -104,8 +104,8 @@ ansible-playbook '${local.playbook}' \
 --inventory=${local.inventory} \
 --user=${var.user} \
 %{if var.ask_vault_pass}--ask-vault-pass %{endif}\
-%{if var.become}--become-method='${var.become_method}' %{endif}\
-%{if var.become}--become-user='${var.become_user}' %{endif}\
+%{if var.become_method != "sudo"}--become-method='${var.become_method}' %{endif}\
+%{if var.become_user != "root"}--become-user='${var.become_user}' %{endif}\
 %{if var.become}--become %{endif}\
 %{if var.flush_cache}--flush-cache %{endif}\
 %{if var.force_handlers}--force-handlers %{endif}\
